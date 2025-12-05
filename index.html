@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英文單字複習 - 國中生專用</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 英文單字複習</h1>
+            <p class="subtitle">國中生專用學習工具</p>
+            <div class="mode-switcher">
+                <button class="mode-btn active" id="reviewModeBtn">📖 複習模式</button>
+                <button class="mode-btn" id="testModeBtn">✏️ 測試模式</button>
+            </div>
+        </header>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-text">
+            <span id="currentIndex">1</span> / <span id="totalWords">0</span>
+        </div>
+
+        <div class="card-container">
+            <!-- 複習模式卡片 -->
+            <div class="word-card" id="reviewCard">
+                <div class="card-front">
+                    <div class="word-section">
+                        <h2 class="word" id="word">載入中...</h2>
+                        <p class="pronunciation" id="pronunciation"></p>
+                    </div>
+                    <button class="reveal-btn" id="revealBtn">顯示中文</button>
+                </div>
+                <div class="card-back hidden" id="cardBack">
+                    <div class="meaning-section">
+                        <h3 class="meaning-label">中文意思</h3>
+                        <p class="meaning" id="meaning"></p>
+                        <h3 class="example-label">例句</h3>
+                        <p class="example" id="example"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 測試模式卡片 -->
+            <div class="test-card hidden" id="testCard">
+                <div class="test-question">
+                    <h3 class="test-label">請輸入這個中文意思的英文單字：</h3>
+                    <p class="test-meaning" id="testMeaning"></p>
+                </div>
+                <div class="test-input-section">
+                    <input type="text" class="test-input" id="testInput" placeholder="輸入英文單字..." autocomplete="off" spellcheck="false">
+                    <button class="submit-btn" id="submitBtn">提交答案</button>
+                </div>
+                <div class="test-result hidden" id="testResult">
+                    <div class="result-content" id="resultContent"></div>
+                    <div class="correct-answer" id="correctAnswer"></div>
+                    <p class="test-example" id="testExample"></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-secondary" id="prevBtn">← 上一個</button>
+            <button class="btn btn-primary" id="nextBtn">下一個 →</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item" id="reviewedStat">
+                <span class="stat-label">已複習</span>
+                <span class="stat-value" id="reviewedCount">0</span>
+            </div>
+            <div class="stat-item" id="remainingStat">
+                <span class="stat-label">剩餘</span>
+                <span class="stat-value" id="remainingCount">0</span>
+            </div>
+            <div class="stat-item hidden" id="correctStat">
+                <span class="stat-label">正確</span>
+                <span class="stat-value correct-value" id="correctCount">0</span>
+            </div>
+            <div class="stat-item hidden" id="wrongStat">
+                <span class="stat-label">錯誤</span>
+                <span class="stat-value wrong-value" id="wrongCount">0</span>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-shuffle" id="shuffleBtn">🔀 隨機排序</button>
+            <button class="btn btn-reset" id="resetBtn">🔄 重新開始</button>
+        </div>
+    </div>
+
+    <script src="words.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
+
