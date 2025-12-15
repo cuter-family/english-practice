@@ -1,312 +1,201 @@
-// 應用程式狀態
-let currentIndex = 0;
-let words = [...wordsData];
-let reviewedCount = 0;
-let currentMode = 'review'; // 'review' 或 'test'
-let correctCount = 0;
-let wrongCount = 0;
 
-// DOM 元素
-const wordElement = document.getElementById('word');
-const pronunciationElement = document.getElementById('pronunciation');
-const meaningElement = document.getElementById('meaning');
-const exampleElement = document.getElementById('example');
-const revealBtn = document.getElementById('revealBtn');
-const cardBack = document.getElementById('cardBack');
-const nextBtn = document.getElementById('nextBtn');
-const prevBtn = document.getElementById('prevBtn');
-const currentIndexElement = document.getElementById('currentIndex');
-const totalWordsElement = document.getElementById('totalWords');
-const reviewedCountElement = document.getElementById('reviewedCount');
-const remainingCountElement = document.getElementById('remainingCount');
-const progressFill = document.getElementById('progressFill');
-const shuffleBtn = document.getElementById('shuffleBtn');
-const resetBtn = document.getElementById('resetBtn');
+// State Management
+const STATE = {
+    words: [],
+    practiceQueue: [],
+    currentCardIndex: 0
+};
 
-// 模式切換元素
-const reviewModeBtn = document.getElementById('reviewModeBtn');
-const testModeBtn = document.getElementById('testModeBtn');
-const reviewCard = document.getElementById('reviewCard');
-const testCard = document.getElementById('testCard');
+// DOM Elements
+const elements = {
+    wordList: document.getElementById('word-list'),
+    formAdd: document.getElementById('form-add-word'),
+    modalAdd: document.getElementById('modal-add'),
+    modalPractice: document.getElementById('modal-practice'),
+    btnAddToggle: document.getElementById('btn-add-toggle'),
+    btnCloseAdd: document.getElementById('btn-close-add'),
+    btnClosePractice: document.getElementById('btn-close-practice'),
+    btnPractice: document.getElementById('btn-practice'),
+    statTotal: document.getElementById('stat-total'),
+    statMastered: document.getElementById('stat-mastered'),
+    inputWord: document.getElementById('input-word'),
+    inputDef: document.getElementById('input-def'),
+    flashcard: document.getElementById('flashcard'),
+    cardWord: document.getElementById('card-word'),
+    cardDef: document.getElementById('card-def'),
+    btnForgot: document.getElementById('btn-forgot'),
+    btnKnown: document.getElementById('btn-known')
+};
 
-// 測試模式元素
-const testMeaning = document.getElementById('testMeaning');
-const testInput = document.getElementById('testInput');
-const submitBtn = document.getElementById('submitBtn');
-const testResult = document.getElementById('testResult');
-const resultContent = document.getElementById('resultContent');
-const correctAnswer = document.getElementById('correctAnswer');
-const testExample = document.getElementById('testExample');
-
-// 統計元素
-const reviewedStat = document.getElementById('reviewedStat');
-const remainingStat = document.getElementById('remainingStat');
-const correctStat = document.getElementById('correctStat');
-const wrongStat = document.getElementById('wrongStat');
-const correctCountElement = document.getElementById('correctCount');
-const wrongCountElement = document.getElementById('wrongCount');
-
-// 初始化
-function init() {
-    totalWordsElement.textContent = words.length;
-    updateWord();
-    updateStats();
-    updateProgress();
-    updateButtons();
-    setupModeSwitcher();
-    setupTestMode();
-}
-
-// 設置模式切換
-function setupModeSwitcher() {
-    reviewModeBtn.addEventListener('click', () => switchMode('review'));
-    testModeBtn.addEventListener('click', () => switchMode('test'));
-}
-
-// 切換模式
-function switchMode(mode) {
-    currentMode = mode;
-    
-    if (mode === 'review') {
-        reviewModeBtn.classList.add('active');
-        testModeBtn.classList.remove('active');
-        reviewCard.classList.remove('hidden');
-        testCard.classList.add('hidden');
-        reviewedStat.classList.remove('hidden');
-        remainingStat.classList.remove('hidden');
-        correctStat.classList.add('hidden');
-        wrongStat.classList.add('hidden');
-        updateWord();
-    } else {
-        reviewModeBtn.classList.remove('active');
-        testModeBtn.classList.add('active');
-        reviewCard.classList.add('hidden');
-        testCard.classList.remove('hidden');
-        reviewedStat.classList.add('hidden');
-        remainingStat.classList.add('hidden');
-        correctStat.classList.remove('hidden');
-        wrongStat.classList.remove('hidden');
-        updateTestWord();
+// Utilities
+const storage = {
+    save: () => localStorage.setItem('vocabApp_data', JSON.stringify(STATE.words)),
+    load: () => {
+        const data = localStorage.getItem('vocabApp_data');
+        return data ? JSON.parse(data) : [];
     }
-    updateButtons();
+};
+
+const createId = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
+
+// Logic
+function init() {
+    STATE.words = storage.load();
+    renderList();
+    updateStats();
+    setupEventListeners();
 }
 
-// 設置測試模式
-function setupTestMode() {
-    submitBtn.addEventListener('click', checkAnswer);
-    testInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter' && !submitBtn.disabled) {
-            checkAnswer();
-        }
+function addWord(e) {
+    e.preventDefault();
+    const word = elements.inputWord.value.trim();
+    const definition = elements.inputDef.value.trim();
+
+    if (!word || !definition) return;
+
+    const newWord = {
+        id: createId(),
+        word,
+        definition,
+        status: 'new', // new, mastered
+        createdAt: new Date().toISOString()
+    };
+
+    STATE.words.unshift(newWord);
+    storage.save();
+    renderList();
+    updateStats();
+    closeModal(elements.modalAdd);
+    elements.formAdd.reset();
+}
+
+function deleteWord(id) {
+    if(!confirm('Delete this word?')) return;
+    STATE.words = STATE.words.filter(w => w.id !== id);
+    storage.save();
+    renderList();
+    updateStats();
+}
+
+function renderList() {
+    elements.wordList.innerHTML = '';
+    
+    if (STATE.words.length === 0) {
+        elements.wordList.innerHTML = `
+            <div class="empty-state" style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem;">
+                <p>No words yet. Add one to get started!</p>
+            </div>`;
+        return;
+    }
+
+    STATE.words.forEach(word => {
+        const card = document.createElement('div');
+        card.className = 'glass-panel word-card';
+        card.innerHTML = `
+            <div class="word-status status-${word.status === 'mastered' ? 'mastered' : 'new'}" title="${word.status}"></div>
+            <h3>${word.word}</h3>
+            <p>${word.definition}</p>
+            <div class="card-actions">
+                <button onclick="window.app.deleteWord('${word.id}')" class="btn-sm btn-delete">Delete</button>
+            </div>
+        `;
+        elements.wordList.appendChild(card);
     });
 }
 
-// 更新測試單字
-function updateTestWord() {
-    const currentWord = words[currentIndex];
-    testMeaning.textContent = currentWord.meaning;
-    testInput.value = '';
-    testInput.classList.remove('correct', 'wrong');
-    testResult.classList.add('hidden');
-    submitBtn.disabled = false;
-    testInput.focus();
-    currentIndexElement.textContent = currentIndex + 1;
-    updateProgress();
+function updateStats() {
+    elements.statTotal.innerText = STATE.words.length;
+    elements.statMastered.innerText = STATE.words.filter(w => w.status === 'mastered').length;
 }
 
-// 更新單字顯示
-function updateWord() {
-    const currentWord = words[currentIndex];
-    wordElement.textContent = currentWord.word;
-    pronunciationElement.textContent = currentWord.pronunciation;
-    meaningElement.textContent = currentWord.meaning;
-    exampleElement.textContent = currentWord.example;
-    
-    // 重置卡片狀態
-    cardBack.classList.add('hidden');
-    revealBtn.textContent = '顯示中文';
-    revealBtn.style.display = 'block';
-    
-    currentIndexElement.textContent = currentIndex + 1;
-    updateProgress();
+// Modal Handling
+function openModal(modal) {
+    modal.classList.remove('hidden');
+    // slight delay to allow display:block to apply before opacity transition
+    setTimeout(() => modal.classList.add('active'), 10);
 }
 
-// 顯示/隱藏中文
-revealBtn.addEventListener('click', function() {
-    if (cardBack.classList.contains('hidden')) {
-        cardBack.classList.remove('hidden');
-        revealBtn.textContent = '隱藏中文';
-        if (currentIndex === reviewedCount) {
-            reviewedCount++;
+function closeModal(modal) {
+    modal.classList.remove('active');
+    setTimeout(() => modal.classList.add('hidden'), 300);
+}
+
+// Practice Mode Logic
+function startPractice() {
+    // Filter words that are NOT mastered
+    STATE.practiceQueue = STATE.words.filter(w => w.status !== 'mastered');
+    
+    if (STATE.practiceQueue.length === 0) {
+        alert("Great job! You've mastered all your words (or haven't added any yet).");
+        return;
+    }
+    
+    // Shuffle
+    STATE.practiceQueue.sort(() => Math.random() - 0.5);
+    STATE.currentCardIndex = 0;
+    
+    showCard();
+    openModal(elements.modalPractice);
+}
+
+function showCard() {
+    if (STATE.currentCardIndex >= STATE.practiceQueue.length) {
+        closeModal(elements.modalPractice);
+        alert("Practice session complete!");
+        return;
+    }
+    
+    const wordObj = STATE.practiceQueue[STATE.currentCardIndex];
+    elements.cardWord.innerText = wordObj.word;
+    elements.cardDef.innerText = wordObj.definition;
+    elements.flashcard.classList.remove('flipped');
+}
+
+function handleCardEvaluation(known) {
+    const wordObj = STATE.practiceQueue[STATE.currentCardIndex];
+    
+    if (known) {
+        // Find original word and update status
+        const originalIndex = STATE.words.findIndex(w => w.id === wordObj.id);
+        if (originalIndex !== -1) {
+            STATE.words[originalIndex].status = 'mastered';
+            storage.save();
+            renderList();
             updateStats();
         }
-    } else {
-        cardBack.classList.add('hidden');
-        revealBtn.textContent = '顯示中文';
     }
-});
-
-// 下一個單字
-nextBtn.addEventListener('click', function() {
-    if (currentIndex < words.length - 1) {
-        currentIndex++;
-        if (currentMode === 'review') {
-            updateWord();
-        } else {
-            updateTestWord();
-        }
-        updateButtons();
-    }
-});
-
-// 上一個單字
-prevBtn.addEventListener('click', function() {
-    if (currentIndex > 0) {
-        currentIndex--;
-        if (currentMode === 'review') {
-            updateWord();
-        } else {
-            updateTestWord();
-        }
-        updateButtons();
-    }
-});
-
-// 更新按鈕狀態
-function updateButtons() {
-    prevBtn.disabled = currentIndex === 0;
-    nextBtn.disabled = currentIndex === words.length - 1;
+    
+    STATE.currentCardIndex++;
+    showCard();
 }
 
-// 檢查答案
-function checkAnswer() {
-    const userAnswer = testInput.value.trim().toLowerCase();
-    const currentWord = words[currentIndex];
-    const correctWord = currentWord.word.toLowerCase();
+function setupEventListeners() {
+    elements.btnAddToggle.addEventListener('click', () => openModal(elements.modalAdd));
+    elements.btnCloseAdd.addEventListener('click', () => closeModal(elements.modalAdd));
+    elements.formAdd.addEventListener('submit', addWord);
     
-    // 移除答案中的空格和標點符號進行比較
-    const normalizedUserAnswer = userAnswer.replace(/[^a-z]/g, '');
-    const normalizedCorrectAnswer = correctWord.replace(/[^a-z]/g, '');
+    elements.btnPractice.addEventListener('click', startPractice);
+    elements.btnClosePractice.addEventListener('click', () => closeModal(elements.modalPractice));
     
-    const isCorrect = normalizedUserAnswer === normalizedCorrectAnswer;
+    elements.flashcard.addEventListener('click', () => {
+        elements.flashcard.classList.toggle('flipped');
+    });
+
+    elements.btnKnown.addEventListener('click', (e) => {
+        e.stopPropagation();
+        handleCardEvaluation(true);
+    });
     
-    // 顯示結果
-    testResult.classList.remove('hidden');
-    testInput.classList.add(isCorrect ? 'correct' : 'wrong');
-    submitBtn.disabled = true;
-    
-    if (isCorrect) {
-        resultContent.textContent = '✓ 答對了！';
-        resultContent.className = 'result-content correct';
-        correctCount++;
-    } else {
-        resultContent.textContent = '✗ 答錯了';
-        resultContent.className = 'result-content wrong';
-        wrongCount++;
-    }
-    
-    correctAnswer.innerHTML = `<strong>正確答案：</strong>${currentWord.word} ${currentWord.pronunciation}`;
-    testExample.textContent = currentWord.example;
-    
-    updateStats();
-    
-    // 自動聚焦到下一個輸入框（如果有的話）
-    setTimeout(() => {
-        if (currentIndex < words.length - 1) {
-            testInput.focus();
-        }
-    }, 500);
+    elements.btnForgot.addEventListener('click', (e) => {
+        e.stopPropagation();
+        handleCardEvaluation(false);
+    });
 }
 
-// 更新統計資訊
-function updateStats() {
-    if (currentMode === 'review') {
-        reviewedCountElement.textContent = reviewedCount;
-        remainingCountElement.textContent = words.length - reviewedCount;
-    } else {
-        correctCountElement.textContent = correctCount;
-        wrongCountElement.textContent = wrongCount;
-    }
-}
+// Expose functions to global scope for HTML onclick handlers
+window.app = {
+    deleteWord
+};
 
-// 更新進度條
-function updateProgress() {
-    const progress = ((currentIndex + 1) / words.length) * 100;
-    progressFill.style.width = progress + '%';
-}
-
-// 隨機排序
-shuffleBtn.addEventListener('click', function() {
-    // Fisher-Yates 洗牌算法
-    for (let i = words.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [words[i], words[j]] = [words[j], words[i]];
-    }
-    currentIndex = 0;
-    reviewedCount = 0;
-    correctCount = 0;
-    wrongCount = 0;
-    
-    if (currentMode === 'review') {
-        updateWord();
-    } else {
-        updateTestWord();
-    }
-    updateStats();
-    updateButtons();
-    
-    // 視覺反饋
-    shuffleBtn.textContent = '✓ 已隨機排序';
-    setTimeout(() => {
-        shuffleBtn.textContent = '🔀 隨機排序';
-    }, 2000);
-});
-
-// 重新開始
-resetBtn.addEventListener('click', function() {
-    currentIndex = 0;
-    reviewedCount = 0;
-    correctCount = 0;
-    wrongCount = 0;
-    words = [...wordsData];
-    
-    if (currentMode === 'review') {
-        updateWord();
-    } else {
-        updateTestWord();
-    }
-    updateStats();
-    updateButtons();
-    
-    // 視覺反饋
-    resetBtn.textContent = '✓ 已重置';
-    setTimeout(() => {
-        resetBtn.textContent = '🔄 重新開始';
-    }, 2000);
-});
-
-// 鍵盤快捷鍵
-document.addEventListener('keydown', function(e) {
-    if (currentMode === 'review') {
-        if (e.key === 'ArrowRight' && currentIndex < words.length - 1) {
-            nextBtn.click();
-        } else if (e.key === 'ArrowLeft' && currentIndex > 0) {
-            prevBtn.click();
-        } else if (e.key === ' ' || e.key === 'Enter') {
-            e.preventDefault();
-            if (!cardBack.classList.contains('hidden')) {
-                revealBtn.click();
-            }
-        }
-    } else {
-        if (e.key === 'ArrowRight' && currentIndex < words.length - 1) {
-            nextBtn.click();
-        } else if (e.key === 'ArrowLeft' && currentIndex > 0) {
-            prevBtn.click();
-        }
-    }
-});
-
-// 初始化應用程式
-init();
-
+// Start App
+document.addEventListener('DOMContentLoaded', init);
