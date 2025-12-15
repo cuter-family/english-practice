@@ -12,10 +12,13 @@ const elements = {
     formAdd: document.getElementById('form-add-word'),
     modalAdd: document.getElementById('modal-add'),
     modalPractice: document.getElementById('modal-practice'),
+    modalQuiz: document.getElementById('modal-quiz'),
     btnAddToggle: document.getElementById('btn-add-toggle'),
     btnCloseAdd: document.getElementById('btn-close-add'),
     btnClosePractice: document.getElementById('btn-close-practice'),
+    btnCloseQuiz: document.getElementById('btn-close-quiz'),
     btnPractice: document.getElementById('btn-practice'),
+    btnQuiz: document.getElementById('btn-quiz'),
     statTotal: document.getElementById('stat-total'),
     statMastered: document.getElementById('stat-mastered'),
     inputWord: document.getElementById('input-word'),
@@ -24,7 +27,13 @@ const elements = {
     cardWord: document.getElementById('card-word'),
     cardDef: document.getElementById('card-def'),
     btnForgot: document.getElementById('btn-forgot'),
-    btnKnown: document.getElementById('btn-known')
+    btnKnown: document.getElementById('btn-known'),
+    // Quiz Elements
+    quizDef: document.getElementById('quiz-def'),
+    quizInput: document.getElementById('quiz-input'),
+    quizFeedback: document.getElementById('quiz-feedback'),
+    btnCheck: document.getElementById('btn-check'),
+    btnGiveUp: document.getElementById('btn-give-up')
 };
 
 // Utilities
@@ -70,7 +79,7 @@ function addWord(e) {
 }
 
 function deleteWord(id) {
-    if(!confirm('Delete this word?')) return;
+    if (!confirm('Delete this word?')) return;
     STATE.words = STATE.words.filter(w => w.id !== id);
     storage.save();
     renderList();
@@ -79,7 +88,7 @@ function deleteWord(id) {
 
 function renderList() {
     elements.wordList.innerHTML = '';
-    
+
     if (STATE.words.length === 0) {
         elements.wordList.innerHTML = `
             <div class="empty-state" style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem;">
@@ -124,16 +133,16 @@ function closeModal(modal) {
 function startPractice() {
     // Filter words that are NOT mastered
     STATE.practiceQueue = STATE.words.filter(w => w.status !== 'mastered');
-    
+
     if (STATE.practiceQueue.length === 0) {
         alert("Great job! You've mastered all your words (or haven't added any yet).");
         return;
     }
-    
+
     // Shuffle
     STATE.practiceQueue.sort(() => Math.random() - 0.5);
     STATE.currentCardIndex = 0;
-    
+
     showCard();
     openModal(elements.modalPractice);
 }
@@ -144,7 +153,7 @@ function showCard() {
         alert("Practice session complete!");
         return;
     }
-    
+
     const wordObj = STATE.practiceQueue[STATE.currentCardIndex];
     elements.cardWord.innerText = wordObj.word;
     elements.cardDef.innerText = wordObj.definition;
@@ -153,7 +162,7 @@ function showCard() {
 
 function handleCardEvaluation(known) {
     const wordObj = STATE.practiceQueue[STATE.currentCardIndex];
-    
+
     if (known) {
         // Find original word and update status
         const originalIndex = STATE.words.findIndex(w => w.id === wordObj.id);
@@ -164,7 +173,7 @@ function handleCardEvaluation(known) {
             updateStats();
         }
     }
-    
+
     STATE.currentCardIndex++;
     showCard();
 }
@@ -173,10 +182,10 @@ function setupEventListeners() {
     elements.btnAddToggle.addEventListener('click', () => openModal(elements.modalAdd));
     elements.btnCloseAdd.addEventListener('click', () => closeModal(elements.modalAdd));
     elements.formAdd.addEventListener('submit', addWord);
-    
+
     elements.btnPractice.addEventListener('click', startPractice);
     elements.btnClosePractice.addEventListener('click', () => closeModal(elements.modalPractice));
-    
+
     elements.flashcard.addEventListener('click', () => {
         elements.flashcard.classList.toggle('flipped');
     });
@@ -185,11 +194,109 @@ function setupEventListeners() {
         e.stopPropagation();
         handleCardEvaluation(true);
     });
-    
+
     elements.btnForgot.addEventListener('click', (e) => {
         e.stopPropagation();
         handleCardEvaluation(false);
     });
+
+    // Quiz Mode Listeners
+    elements.btnQuiz.addEventListener('click', startQuiz);
+    elements.btnCloseQuiz.addEventListener('click', () => closeModal(elements.modalQuiz));
+    elements.btnCheck.addEventListener('click', checkQuizAnswer);
+    elements.btnGiveUp.addEventListener('click', giveUp);
+    elements.quizInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') checkQuizAnswer();
+    });
+}
+
+// Quiz Mode Logic
+function startQuiz() {
+    STATE.practiceQueue = STATE.words.filter(w => w.status !== 'mastered');
+
+    if (STATE.practiceQueue.length === 0) {
+        alert("Great job! You've mastered all your words (or haven't added any yet).");
+        return;
+    }
+
+    STATE.practiceQueue.sort(() => Math.random() - 0.5);
+    STATE.currentCardIndex = 0;
+
+    openModal(elements.modalQuiz);
+    showQuizQuestion();
+}
+
+function showQuizQuestion() {
+    if (STATE.currentCardIndex >= STATE.practiceQueue.length) {
+        closeModal(elements.modalQuiz);
+        alert("Quiz complete!");
+        return;
+    }
+
+    const wordObj = STATE.practiceQueue[STATE.currentCardIndex];
+    elements.quizDef.innerText = wordObj.definition;
+    elements.quizInput.value = '';
+    elements.quizInput.focus();
+
+    resetFeedback();
+}
+
+function resetFeedback() {
+    elements.quizFeedback.className = 'feedback-msg hidden';
+    elements.quizFeedback.innerText = '';
+    elements.quizInput.parentElement.classList.remove('anim-shake');
+}
+
+function checkQuizAnswer() {
+    const wordObj = STATE.practiceQueue[STATE.currentCardIndex];
+    const attempt = elements.quizInput.value.trim().toLowerCase();
+    const target = wordObj.word.toLowerCase();
+
+    if (attempt === target) {
+        // Correct
+        elements.quizFeedback.innerText = 'Correct! 🎉';
+        elements.quizFeedback.className = 'feedback-msg feedback-correct';
+        elements.quizFeedback.classList.remove('hidden');
+
+        // Mark as mastered
+        const originalIndex = STATE.words.findIndex(w => w.id === wordObj.id);
+        if (originalIndex !== -1) {
+            STATE.words[originalIndex].status = 'mastered';
+            storage.save();
+            renderList();
+            updateStats();
+        }
+
+        setTimeout(() => {
+            STATE.currentCardIndex++;
+            showQuizQuestion();
+        }, 1200);
+
+    } else {
+        // Incorrect
+        elements.quizFeedback.innerText = 'Not quite. Try again.';
+        elements.quizFeedback.className = 'feedback-msg feedback-wrong';
+        elements.quizFeedback.classList.remove('hidden');
+
+        // Shake animation
+        const container = elements.quizInput.parentElement;
+        container.classList.remove('anim-shake');
+        void container.offsetWidth; // trigger reflow
+        container.classList.add('anim-shake');
+    }
+}
+
+function giveUp() {
+    const wordObj = STATE.practiceQueue[STATE.currentCardIndex];
+    elements.quizInput.value = wordObj.word;
+    elements.quizFeedback.innerText = 'The word was: ' + wordObj.word;
+    elements.quizFeedback.className = 'feedback-msg feedback-wrong';
+    elements.quizFeedback.classList.remove('hidden');
+
+    setTimeout(() => {
+        STATE.currentCardIndex++;
+        showQuizQuestion();
+    }, 2000);
 }
 
 // Expose functions to global scope for HTML onclick handlers
