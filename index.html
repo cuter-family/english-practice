@@ -1,130 +1,1572 @@
-<!DOCTYPE html>
-<html lang="en">
-
+<!doctype html>
+<html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VocabMaster - Premium English Practice</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>英文單字卡遊戲樂園</title>
+  <style>
+    :root {
+      --sky: #dff5ff;
+      --mint: #ddf9e4;
+      --peach: #ffe5d1;
+      --sun: #fff3b0;
+      --berry: #ff7f7f;
+      --ocean: #227c9d;
+      --leaf: #2b9348;
+      --ink: #243b53;
+      --soft-ink: #52708d;
+      --card: rgba(255, 255, 255, 0.88);
+      --line: rgba(34, 124, 157, 0.16);
+      --shadow: 0 18px 40px rgba(36, 59, 83, 0.14);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Avenir Next", "Noto Sans TC", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(255, 243, 176, 0.85), transparent 35%),
+        radial-gradient(circle at top right, rgba(221, 249, 228, 0.9), transparent 30%),
+        linear-gradient(180deg, #b8ecff 0%, #effcf9 45%, #fff7ec 100%);
+      min-height: 100vh;
+    }
+
+    .page {
+      width: min(1200px, calc(100% - 32px));
+      margin: 24px auto 48px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, rgba(34, 124, 157, 0.94), rgba(43, 147, 72, 0.88));
+      border-radius: 28px;
+      padding: 28px;
+      color: #fff;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after,
+    .hero::before {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.16);
+    }
+
+    .hero::before {
+      width: 200px;
+      height: 200px;
+      top: -90px;
+      right: -30px;
+    }
+
+    .hero::after {
+      width: 120px;
+      height: 120px;
+      bottom: -40px;
+      left: -20px;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 4vw, 3.6rem);
+      line-height: 1.05;
+      margin-bottom: 10px;
+    }
+
+    .hero p {
+      max-width: 720px;
+      font-size: 1rem;
+      opacity: 0.96;
+      line-height: 1.7;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .stat {
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 18px;
+      padding: 16px;
+      backdrop-filter: blur(6px);
+    }
+
+    .stat-label {
+      font-size: 0.82rem;
+      opacity: 0.88;
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 800;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 20px;
+      margin-top: 20px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--card);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    .panel h2 {
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+    }
+
+    .panel-subtitle {
+      color: var(--soft-ink);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 18px;
+    }
+
+    .toolbar,
+    .mini-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .toolbar {
+      margin-bottom: 16px;
+    }
+
+    .category-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .category-pill {
+      border: 1px solid rgba(34, 124, 157, 0.18);
+      border-radius: 999px;
+      padding: 9px 14px;
+      background: rgba(255, 255, 255, 0.86);
+      color: var(--ocean);
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .category-pill.active {
+      background: linear-gradient(135deg, #227c9d, #43aa8b);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 10px 24px rgba(34, 124, 157, 0.2);
+    }
+
+    input[type="search"],
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font: inherit;
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .search-wrap {
+      flex: 1 1 240px;
+    }
+
+    .button {
+      border: none;
+      border-radius: 999px;
+      padding: 11px 16px;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      color: #fff;
+      background: var(--ocean);
+      box-shadow: 0 10px 24px rgba(34, 124, 157, 0.24);
+      transition: transform 0.16s ease, box-shadow 0.16s ease, opacity 0.16s ease;
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 28px rgba(34, 124, 157, 0.28);
+    }
+
+    .button.secondary {
+      background: #43aa8b;
+      box-shadow: 0 10px 24px rgba(67, 170, 139, 0.22);
+    }
+
+    .button.sun {
+      background: #f4a261;
+      box-shadow: 0 10px 24px rgba(244, 162, 97, 0.22);
+    }
+
+    .button.berry {
+      background: #ef476f;
+      box-shadow: 0 10px 24px rgba(239, 71, 111, 0.2);
+    }
+
+    .button.ghost {
+      background: rgba(255, 255, 255, 0.82);
+      color: var(--ocean);
+      border: 1px solid rgba(34, 124, 157, 0.18);
+      box-shadow: none;
+    }
+
+    .button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .word-grid {
+      max-height: 760px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .word-group {
+      margin-bottom: 18px;
+    }
+
+    .word-group-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 0 0 10px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(34, 124, 157, 0.12), rgba(67, 170, 139, 0.12));
+      color: var(--ocean);
+      font-size: 1rem;
+      font-weight: 900;
+    }
+
+    .word-group-count {
+      color: var(--soft-ink);
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+
+    .word-group-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .word-item {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(248, 252, 255, 0.94));
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      min-height: 122px;
+    }
+
+    .word-item input {
+      margin-top: 5px;
+      width: 18px;
+      height: 18px;
+      accent-color: var(--leaf);
+      flex: 0 0 auto;
+    }
+
+    .word-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .word-text {
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .word-meta {
+      color: var(--soft-ink);
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+    }
+
+    .word-category {
+      display: inline-flex;
+      align-items: center;
+      margin-bottom: 8px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(255, 243, 176, 0.58);
+      color: #8a6b00;
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    .word-meaning {
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .word-example {
+      font-size: 0.88rem;
+      color: var(--soft-ink);
+      line-height: 1.5;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0 16px;
+    }
+
+    .pill {
+      background: rgba(34, 124, 157, 0.09);
+      color: var(--ocean);
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    .selected-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-height: 46px;
+      margin-bottom: 20px;
+    }
+
+    .selected-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #fff3c4, #ffe1cc);
+      color: #8b4b14;
+      padding: 8px 10px 8px 12px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.9rem;
+    }
+
+    .chip-remove {
+      border: none;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      background: rgba(139, 75, 20, 0.14);
+      color: #8b4b14;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 800;
+    }
+
+    .empty {
+      color: var(--soft-ink);
+      background: rgba(82, 112, 141, 0.08);
+      border: 1px dashed rgba(82, 112, 141, 0.24);
+      border-radius: 16px;
+      padding: 14px;
+      width: 100%;
+      line-height: 1.6;
+    }
+
+    .flashcard {
+      min-height: 260px;
+      border-radius: 28px;
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.65), transparent 38%),
+        linear-gradient(140deg, #ffe7e1, #fff7d4 52%, #ddf9e4);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      margin-bottom: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+    }
+
+    .flashcard-label {
+      color: #996d00;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      font-size: 0.86rem;
+      margin-bottom: 10px;
+    }
+
+    .flashcard-main {
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      font-weight: 900;
+      margin-bottom: 14px;
+      line-height: 1.08;
+    }
+
+    .flashcard-extra {
+      color: #6f633a;
+      font-size: 1rem;
+      line-height: 1.7;
+      max-width: 520px;
+    }
+
+    .section-split {
+      display: grid;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .game-card {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(242, 251, 255, 0.92));
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 20px;
+    }
+
+    .game-top {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .score {
+      display: inline-flex;
+      gap: 10px;
+      align-items: center;
+      background: rgba(43, 147, 72, 0.1);
+      color: var(--leaf);
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-weight: 800;
+    }
+
+    .question {
+      font-size: 1.28rem;
+      font-weight: 800;
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .option {
+      border: 1px solid rgba(34, 124, 157, 0.15);
+      background: #fff;
+      border-radius: 18px;
+      padding: 14px;
+      font: inherit;
+      font-weight: 700;
+      color: var(--ink);
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .option:hover {
+      border-color: rgba(34, 124, 157, 0.45);
+      background: rgba(34, 124, 157, 0.04);
+    }
+
+    .feedback {
+      min-height: 26px;
+      font-weight: 800;
+      margin-bottom: 14px;
+    }
+
+    .feedback.good {
+      color: var(--leaf);
+    }
+
+    .feedback.bad {
+      color: #d62839;
+    }
+
+    .spelling-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .spelling-row input {
+      flex: 1 1 220px;
+    }
+
+    .letters {
+      background: rgba(255, 243, 176, 0.42);
+      border-radius: 16px;
+      padding: 12px 14px;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      font-size: 1.1rem;
+      color: #936500;
+      margin-bottom: 14px;
+      word-break: break-all;
+    }
+
+    .tiny-note {
+      color: var(--soft-ink);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 980px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .word-grid {
+        max-height: none;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        width: min(100% - 18px, 1200px);
+        margin-top: 10px;
+      }
+
+      .hero,
+      .panel,
+      .game-card {
+        border-radius: 20px;
+      }
+
+      .flashcard {
+        min-height: 220px;
+        padding: 20px 16px;
+      }
+    }
+  </style>
 </head>
-
 <body>
-    <div class="app-background"></div>
-
-    <header class="glass-header">
-        <div class="logo">
-            <h1>VocabMaster</h1>
+  <div class="page">
+    <section class="hero">
+      <h1>英文單字卡遊戲樂園</h1>
+      <p>先勾選今天想練習的英文單字，再用單字卡和小遊戲陪小孩複習。每次都可以自己挑字，也能快速隨機抽出今天的練習清單。</p>
+      <div class="hero-stats">
+        <div class="stat">
+          <div class="stat-label">總單字數</div>
+          <div class="stat-value" id="totalWordsStat">100</div>
         </div>
-        <nav>
-            <button id="btn-practice" class="btn-primary">Flashcards</button>
-            <button id="btn-quiz" class="btn-primary"
-                style="background: var(--success-color); margin-left: 0.5rem;">Spelling</button>
-            <button id="btn-add-toggle" class="btn-icon" aria-label="Add Word">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" />
-                </svg>
-            </button>
-        </nav>
-    </header>
+        <div class="stat">
+          <div class="stat-label">今天已勾選</div>
+          <div class="stat-value" id="selectedWordsStat">0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">可玩的遊戲</div>
+          <div class="stat-value">2</div>
+        </div>
+      </div>
+    </section>
 
-    <main class="container">
-        <!-- Stats Section -->
-        <section class="stats-bar glass-panel">
-            <div class="stat-item">
-                <span class="stat-value" id="stat-total">0</span>
-                <span class="stat-label">Total Words</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-value" id="stat-mastered">0</span>
-                <span class="stat-label">Mastered</span>
-            </div>
+    <div class="layout">
+      <section class="panel">
+        <h2>1. 勾選今天要練習的單字</h2>
+        <p class="panel-subtitle">可以搜尋單字、勾選今天的清單，或一鍵隨機抽出 5、10、15 個單字。勾選結果會自動保存在這台裝置。</p>
+
+        <div class="toolbar">
+          <div class="search-wrap">
+            <input id="searchInput" type="search" placeholder="搜尋英文或中文意思，例如 apple / 蘋果" />
+          </div>
+          <button class="button ghost" id="random5Btn">隨機 5 個</button>
+          <button class="button secondary" id="random10Btn">隨機 10 個</button>
+          <button class="button sun" id="random15Btn">隨機 15 個</button>
+          <button class="button berry" id="clearBtn">全部清空</button>
+        </div>
+
+        <div class="pill-row">
+          <div class="pill">建議至少勾選 4 個字，遊戲會更好玩</div>
+          <div class="pill">點選單字卡右下角可朗讀英文</div>
+        </div>
+
+        <div class="category-bar" id="categoryBar"></div>
+        <div class="word-grid" id="wordGrid"></div>
+      </section>
+
+      <section class="section-split">
+        <section class="panel">
+          <h2>2. 今天的單字卡</h2>
+          <p class="panel-subtitle">只會顯示你剛剛勾選的字，按下一張就能輪流複習。</p>
+
+          <div class="selected-list" id="selectedList"></div>
+
+          <div class="flashcard" id="flashcard">
+            <div class="flashcard-label">READY TO PLAY</div>
+            <div class="flashcard-main">先選幾個單字</div>
+            <div class="flashcard-extra">從左邊勾選今天要練習的字，這裡就會出現單字卡。</div>
+          </div>
+
+          <div class="mini-toolbar">
+            <button class="button ghost" id="prevCardBtn">上一張</button>
+            <button class="button secondary" id="flipCardBtn">翻卡</button>
+            <button class="button" id="nextCardBtn">下一張</button>
+            <button class="button sun" id="speakBtn">念出來</button>
+          </div>
         </section>
 
-        <!-- Word List Section -->
-        <section id="word-list" class="word-grid">
-            <!-- Words will be injected here via JS -->
-            <div class="empty-state">
-                <p>No words added yet. Start building your vocabulary!</p>
+        <section class="panel">
+          <h2>3. 小遊戲複習區</h2>
+          <p class="panel-subtitle">遊戲題目會使用你勾選的單字自動生成。下面有兩種玩法，可以輪流玩。</p>
+
+          <div class="game-card">
+            <div class="game-top">
+              <div>
+                <h3>遊戲 A：找出正確意思</h3>
+                <p class="tiny-note">看英文，從 4 個中文意思中選出正確答案。</p>
+              </div>
+              <div class="score" id="quizScore">分數 0 / 0</div>
             </div>
+            <div class="question" id="quizQuestion">先勾選至少 4 個單字再開始。</div>
+            <div class="options" id="quizOptions"></div>
+            <div class="feedback" id="quizFeedback"></div>
+            <div class="mini-toolbar">
+              <button class="button secondary" id="newQuizBtn">出新題目</button>
+            </div>
+          </div>
+
+          <div class="game-card" style="margin-top: 16px;">
+            <div class="game-top">
+              <div>
+                <h3>遊戲 B：拼字小挑戰</h3>
+                <p class="tiny-note">看中文意思和打亂的字母，拼出正確英文單字。</p>
+              </div>
+              <div class="score" id="spellScore">分數 0 / 0</div>
+            </div>
+            <div class="question" id="spellQuestion">先勾選至少 1 個單字再開始。</div>
+            <div class="letters" id="scrambledLetters">-</div>
+            <div class="spelling-row">
+              <input id="spellInput" type="text" placeholder="輸入你猜的英文單字" />
+              <button class="button" id="checkSpellBtn">檢查答案</button>
+            </div>
+            <div class="feedback" id="spellFeedback"></div>
+            <div class="mini-toolbar">
+              <button class="button secondary" id="newSpellBtn">換下一題</button>
+            </div>
+          </div>
         </section>
-    </main>
-
-    <!-- Modal: Add New Word -->
-    <div id="modal-add" class="modal-overlay hidden">
-        <div class="modal-content glass-panel">
-            <div class="modal-header">
-                <h2>Add New Word</h2>
-                <button class="btn-close" id="btn-close-add">&times;</button>
-            </div>
-            <form id="form-add-word">
-                <div class="form-group">
-                    <label for="input-word">Word</label>
-                    <input type="text" id="input-word" placeholder="e.g., Ephemeral" required autocomplete="off">
-                </div>
-                <div class="form-group">
-                    <label for="input-def">Definition</label>
-                    <textarea id="input-def" placeholder="Lasting for a very short time..." required
-                        rows="3"></textarea>
-                </div>
-                <button type="submit" class="btn-submit">Add to List</button>
-            </form>
-        </div>
+      </section>
     </div>
+  </div>
 
-    <!-- Modal: Practice Mode -->
-    <div id="modal-practice" class="modal-overlay hidden">
-        <div class="modal-content glass-panel practice-panel">
-            <div class="modal-header">
-                <h2>Practice Mode</h2>
-                <button class="btn-close" id="btn-close-practice">&times;</button>
-            </div>
-            <div class="flashcard-container">
-                <div class="flashcard" id="flashcard">
-                    <div class="card-front">
-                        <h3 id="card-word">Concept</h3>
-                        <p class="tap-hint">Tap to flip</p>
-                    </div>
-                    <div class="card-back">
-                        <p id="card-def">An abstract idea; a general notion.</p>
-                    </div>
+  <script>
+    const STORAGE_KEY = "kid-english-flashcards-selected";
+
+    function mergeWordLists(primary, secondary) {
+      const merged = [];
+      const seen = new Set();
+
+      for (const item of [...primary, ...secondary]) {
+        const key = item.word.trim().toLowerCase();
+        if (seen.has(key)) {
+          continue;
+        }
+        seen.add(key);
+        merged.push(item);
+      }
+
+      return merged;
+    }
+
+    const baseWords = [
+      { id: 1, word: "apple", meaning: "蘋果", example: "The apple is red." },
+      { id: 2, word: "banana", meaning: "香蕉", example: "I eat a banana every day." },
+      { id: 3, word: "cat", meaning: "貓", example: "The cat is sleeping." },
+      { id: 4, word: "dog", meaning: "狗", example: "The dog can run fast." },
+      { id: 5, word: "bird", meaning: "鳥", example: "A bird is in the tree." },
+      { id: 6, word: "fish", meaning: "魚", example: "The fish swims in water." },
+      { id: 7, word: "sun", meaning: "太陽", example: "The sun is bright." },
+      { id: 8, word: "moon", meaning: "月亮", example: "The moon is round tonight." },
+      { id: 9, word: "star", meaning: "星星", example: "I can see one star." },
+      { id: 10, word: "cloud", meaning: "雲", example: "That cloud looks soft." },
+      { id: 11, word: "rain", meaning: "雨", example: "The rain is falling." },
+      { id: 12, word: "wind", meaning: "風", example: "The wind feels cool." },
+      { id: 13, word: "tree", meaning: "樹", example: "The tree is very tall." },
+      { id: 14, word: "flower", meaning: "花", example: "This flower is pink." },
+      { id: 15, word: "grass", meaning: "草", example: "The grass is green." },
+      { id: 16, word: "book", meaning: "書", example: "I read a book at night." },
+      { id: 17, word: "pen", meaning: "筆", example: "The pen is blue." },
+      { id: 18, word: "pencil", meaning: "鉛筆", example: "Please use a pencil." },
+      { id: 19, word: "bag", meaning: "包包", example: "My bag is heavy." },
+      { id: 20, word: "chair", meaning: "椅子", example: "Sit on the chair." },
+      { id: 21, word: "table", meaning: "桌子", example: "The cup is on the table." },
+      { id: 22, word: "door", meaning: "門", example: "Open the door, please." },
+      { id: 23, word: "window", meaning: "窗戶", example: "The window is open." },
+      { id: 24, word: "bed", meaning: "床", example: "The baby is on the bed." },
+      { id: 25, word: "ball", meaning: "球", example: "Kick the ball to me." },
+      { id: 26, word: "toy", meaning: "玩具", example: "This toy is fun." },
+      { id: 27, word: "car", meaning: "汽車", example: "The car is yellow." },
+      { id: 28, word: "bus", meaning: "公車", example: "We go to school by bus." },
+      { id: 29, word: "train", meaning: "火車", example: "The train is long." },
+      { id: 30, word: "bike", meaning: "腳踏車", example: "I ride my bike outside." },
+      { id: 31, word: "school", meaning: "學校", example: "My school is big." },
+      { id: 32, word: "teacher", meaning: "老師", example: "The teacher is kind." },
+      { id: 33, word: "student", meaning: "學生", example: "The student writes neatly." },
+      { id: 34, word: "friend", meaning: "朋友", example: "My friend is funny." },
+      { id: 35, word: "family", meaning: "家人", example: "I love my family." },
+      { id: 36, word: "mother", meaning: "媽媽", example: "My mother cooks dinner." },
+      { id: 37, word: "father", meaning: "爸爸", example: "My father reads the news." },
+      { id: 38, word: "sister", meaning: "姊妹", example: "My sister likes music." },
+      { id: 39, word: "brother", meaning: "兄弟", example: "My brother can jump high." },
+      { id: 40, word: "baby", meaning: "寶寶", example: "The baby is smiling." },
+      { id: 41, word: "water", meaning: "水", example: "Drink some water." },
+      { id: 42, word: "milk", meaning: "牛奶", example: "The milk is warm." },
+      { id: 43, word: "juice", meaning: "果汁", example: "This juice is sweet." },
+      { id: 44, word: "bread", meaning: "麵包", example: "I want some bread." },
+      { id: 45, word: "rice", meaning: "飯", example: "We eat rice for lunch." },
+      { id: 46, word: "egg", meaning: "蛋", example: "The egg is on the plate." },
+      { id: 47, word: "cake", meaning: "蛋糕", example: "The cake tastes good." },
+      { id: 48, word: "cookie", meaning: "餅乾", example: "The cookie is crunchy." },
+      { id: 49, word: "happy", meaning: "開心的", example: "I feel happy today." },
+      { id: 50, word: "sad", meaning: "傷心的", example: "The boy looks sad." },
+      { id: 51, word: "big", meaning: "大的", example: "That elephant is big." },
+      { id: 52, word: "small", meaning: "小的", example: "The mouse is small." },
+      { id: 53, word: "hot", meaning: "熱的", example: "The soup is hot." },
+      { id: 54, word: "cold", meaning: "冷的", example: "The ice is cold." },
+      { id: 55, word: "fast", meaning: "快的", example: "The rabbit is fast." },
+      { id: 56, word: "slow", meaning: "慢的", example: "The turtle is slow." },
+      { id: 57, word: "clean", meaning: "乾淨的", example: "My hands are clean." },
+      { id: 58, word: "dirty", meaning: "髒的", example: "The shoes are dirty." },
+      { id: 59, word: "red", meaning: "紅色", example: "The balloon is red." },
+      { id: 60, word: "blue", meaning: "藍色", example: "The sky is blue." },
+      { id: 61, word: "green", meaning: "綠色", example: "The leaf is green." },
+      { id: 62, word: "yellow", meaning: "黃色", example: "The duck is yellow." },
+      { id: 63, word: "black", meaning: "黑色", example: "The cat is black." },
+      { id: 64, word: "white", meaning: "白色", example: "The rabbit is white." },
+      { id: 65, word: "one", meaning: "一", example: "I have one cookie." },
+      { id: 66, word: "two", meaning: "二", example: "I see two birds." },
+      { id: 67, word: "three", meaning: "三", example: "Three apples are here." },
+      { id: 68, word: "four", meaning: "四", example: "There are four pencils." },
+      { id: 69, word: "five", meaning: "五", example: "She has five toys." },
+      { id: 70, word: "head", meaning: "頭", example: "Touch your head." },
+      { id: 71, word: "eye", meaning: "眼睛", example: "My eye can see clearly." },
+      { id: 72, word: "ear", meaning: "耳朵", example: "My ear hears music." },
+      { id: 73, word: "nose", meaning: "鼻子", example: "The clown has a red nose." },
+      { id: 74, word: "mouth", meaning: "嘴巴", example: "Open your mouth wide." },
+      { id: 75, word: "hand", meaning: "手", example: "Wash your hand first." },
+      { id: 76, word: "foot", meaning: "腳", example: "My foot is wet." },
+      { id: 77, word: "run", meaning: "跑", example: "I run in the park." },
+      { id: 78, word: "jump", meaning: "跳", example: "The kids jump together." },
+      { id: 79, word: "swim", meaning: "游泳", example: "Fish can swim well." },
+      { id: 80, word: "sing", meaning: "唱歌", example: "We sing a song." },
+      { id: 81, word: "dance", meaning: "跳舞", example: "They dance happily." },
+      { id: 82, word: "read", meaning: "閱讀", example: "I read before bed." },
+      { id: 83, word: "write", meaning: "寫", example: "Please write your name." },
+      { id: 84, word: "draw", meaning: "畫畫", example: "She can draw a cat." },
+      { id: 85, word: "listen", meaning: "聽", example: "Listen to the teacher." },
+      { id: 86, word: "look", meaning: "看", example: "Look at the rainbow." },
+      { id: 87, word: "play", meaning: "玩", example: "We play after class." },
+      { id: 88, word: "open", meaning: "打開", example: "Open your book." },
+      { id: 89, word: "close", meaning: "關上", example: "Close the box gently." },
+      { id: 90, word: "up", meaning: "上", example: "Climb up the stairs." },
+      { id: 91, word: "down", meaning: "下", example: "Sit down here." },
+      { id: 92, word: "in", meaning: "裡面", example: "The toy is in the box." },
+      { id: 93, word: "out", meaning: "外面", example: "Let's go out now." },
+      { id: 94, word: "morning", meaning: "早上", example: "Good morning, everyone." },
+      { id: 95, word: "night", meaning: "晚上", example: "The stars shine at night." },
+      { id: 96, word: "day", meaning: "白天", example: "It is bright in the day." },
+      { id: 97, word: "smile", meaning: "微笑", example: "Please smile for the photo." },
+      { id: 98, word: "laugh", meaning: "笑", example: "The baby can laugh." },
+      { id: 99, word: "love", meaning: "愛", example: "We love our pets." },
+      { id: 100, word: "help", meaning: "幫助", example: "I help my mother." }
+    ];
+
+    const importedWords = [
+      { id: 1001, word: "brown", meaning: "咖啡色", example: "Brown is a warm color." },
+      { id: 1002, word: "golden", meaning: "金色", example: "The star looks golden." },
+      { id: 1003, word: "gray", meaning: "灰色", example: "The cloud is gray today." },
+      { id: 1004, word: "orange", meaning: "橘色", example: "The kite is orange." },
+      { id: 1005, word: "pink", meaning: "粉紅色", example: "My bag is pink." },
+      { id: 1006, word: "purple", meaning: "紫色", example: "The purple flower is pretty." },
+      { id: 1007, word: "hanger", meaning: "衣架", example: "Put your coat on the hanger." },
+      { id: 1008, word: "pillow", meaning: "枕頭", example: "My pillow is soft." },
+      { id: 1009, word: "sheet", meaning: "床單", example: "The sheet is clean." },
+      { id: 1010, word: "toothbrush", meaning: "牙刷", example: "I use a toothbrush every morning." },
+      { id: 1011, word: "soap", meaning: "肥皂", example: "Wash your hands with soap." },
+      { id: 1012, word: "towel", meaning: "毛巾", example: "Dry your hands with a towel." },
+      { id: 1013, word: "bench", meaning: "長凳", example: "We sit on the bench." },
+      { id: 1014, word: "bookcase", meaning: "書架", example: "The books are in the bookcase." },
+      { id: 1015, word: "closet", meaning: "衣櫃", example: "My shoes are in the closet." },
+      { id: 1016, word: "couch", meaning: "沙發", example: "The cat sleeps on the couch." },
+      { id: 1017, word: "curtain", meaning: "窗簾", example: "Please close the curtain." },
+      { id: 1018, word: "desk", meaning: "書桌", example: "My pencil is on the desk." },
+      { id: 1019, word: "drawer", meaning: "抽屜", example: "The crayons are in the drawer." },
+      { id: 1020, word: "faucet", meaning: "水龍頭", example: "Turn off the faucet." },
+      { id: 1021, word: "lamp", meaning: "燈", example: "The lamp is next to the bed." },
+      { id: 1022, word: "light", meaning: "燈；光", example: "Turn on the light, please." },
+      { id: 1023, word: "mirror", meaning: "鏡子", example: "I look in the mirror." },
+      { id: 1024, word: "shelf", meaning: "架子", example: "The toy is on the shelf." },
+      { id: 1025, word: "sink", meaning: "水槽", example: "The cup is in the sink." },
+      { id: 1026, word: "sofa", meaning: "沙發", example: "Grandpa is sitting on the sofa." },
+      { id: 1027, word: "tub", meaning: "浴缸", example: "The duck is in the tub." },
+      { id: 1028, word: "blanket", meaning: "毛毯", example: "The baby has a warm blanket." },
+      { id: 1029, word: "carpet", meaning: "地毯", example: "The carpet feels soft." },
+      { id: 1030, word: "computer", meaning: "電腦", example: "We use the computer at school." },
+      { id: 1031, word: "dresser", meaning: "梳妝台", example: "The comb is on the dresser." },
+      { id: 1032, word: "dryer", meaning: "吹風機", example: "Mom uses the dryer after washing her hair." },
+      { id: 1033, word: "fan", meaning: "電扇", example: "The fan keeps the room cool." },
+      { id: 1034, word: "apartment", meaning: "公寓", example: "My aunt lives in an apartment." },
+      { id: 1035, word: "building", meaning: "建築物", example: "That building is very tall." },
+      { id: 1036, word: "house", meaning: "房子", example: "Our house is near the park." },
+      { id: 1037, word: "home", meaning: "家", example: "I go home after school." },
+      { id: 1038, word: "basement", meaning: "地下室", example: "The boxes are in the basement." },
+      { id: 1039, word: "bathroom", meaning: "廁所", example: "The bathroom is clean." },
+      { id: 1040, word: "bedroom", meaning: "臥室", example: "My bedroom has a blue wall." },
+      { id: 1041, word: "dining room", meaning: "餐廳", example: "We eat dinner in the dining room." },
+      { id: 1042, word: "fence", meaning: "柵欄", example: "The dog jumps over the fence." },
+      { id: 1043, word: "garage", meaning: "車庫", example: "Dad parks in the garage." },
+      { id: 1044, word: "garden", meaning: "花園", example: "The flowers grow in the garden." },
+      { id: 1045, word: "hall", meaning: "大廳", example: "The children run through the hall." },
+      { id: 1046, word: "kitchen", meaning: "廚房", example: "Mom is in the kitchen." },
+      { id: 1047, word: "living room", meaning: "客廳", example: "We watch TV in the living room." },
+      { id: 1048, word: "furniture", meaning: "家具", example: "The new furniture looks nice." },
+      { id: 1049, word: "study room", meaning: "書房", example: "Dad reads in the study room." },
+      { id: 1050, word: "yard", meaning: "庭院", example: "The kids play in the yard." },
+      { id: 1051, word: "balcony", meaning: "陽台", example: "We can see the moon from the balcony." },
+      { id: 1052, word: "ceiling", meaning: "天花板", example: "Look at the light on the ceiling." },
+      { id: 1053, word: "downstairs", meaning: "樓下", example: "Grandma is downstairs." },
+      { id: 1054, word: "floor", meaning: "樓層", example: "Our classroom is on the second floor." },
+      { id: 1055, word: "gate", meaning: "大門", example: "Please close the gate." },
+      { id: 1056, word: "roof", meaning: "屋頂", example: "The bird is on the roof." },
+      { id: 1057, word: "stairs", meaning: "樓梯", example: "Be careful on the stairs." },
+      { id: 1058, word: "upstairs", meaning: "樓上", example: "My room is upstairs." },
+      { id: 1059, word: "wall", meaning: "牆", example: "There is a clock on the wall." },
+      { id: 1060, word: "air conditioner", meaning: "冷氣", example: "The air conditioner keeps the room cool." },
+      { id: 1061, word: "bath", meaning: "洗澡", example: "The baby takes a bath at night." },
+      { id: 1062, word: "camera", meaning: "相機", example: "She takes pictures with a camera." },
+      { id: 1063, word: "flashlight", meaning: "手電筒", example: "Use a flashlight in the dark." },
+      { id: 1064, word: "freezer", meaning: "冰箱冷凍庫", example: "The ice cream is in the freezer." },
+      { id: 1065, word: "heater", meaning: "加熱器", example: "The heater makes the room warm." },
+      { id: 1066, word: "machine", meaning: "機器", example: "That machine is very loud." },
+      { id: 1067, word: "tape", meaning: "膠帶", example: "Use tape to close the box." },
+      { id: 1068, word: "microwave", meaning: "微波爐", example: "The food is in the microwave." },
+      { id: 1069, word: "oven", meaning: "烤箱", example: "The cake is baking in the oven." },
+      { id: 1070, word: "radio", meaning: "收音機", example: "Grandpa listens to the radio." },
+      { id: 1071, word: "refrigerator", meaning: "冰箱", example: "The milk is in the refrigerator." },
+      { id: 1072, word: "speaker", meaning: "擴音器", example: "Music comes from the speaker." },
+      { id: 1073, word: "stove", meaning: "火爐", example: "The soup is on the stove." },
+      { id: 1074, word: "key", meaning: "鑰匙", example: "I put the key in my bag." },
+      { id: 1075, word: "telephone", meaning: "電話", example: "The telephone is ringing." },
+      { id: 1076, word: "television", meaning: "電視", example: "We watch cartoons on television." },
+      { id: 1077, word: "video", meaning: "影片", example: "The class watches a video." },
+      { id: 1078, word: "basket", meaning: "籃子", example: "The apples are in the basket." },
+      { id: 1079, word: "candle", meaning: "蠟燭", example: "The candle is on the cake." },
+      { id: 1080, word: "housework", meaning: "家事", example: "I help with housework." },
+      { id: 1081, word: "mat", meaning: "墊子", example: "Please stand on the mat." },
+      { id: 1082, word: "needle", meaning: "針", example: "Be careful with the needle." },
+      { id: 1083, word: "pan", meaning: "平底鍋", example: "The egg is in the pan." },
+      { id: 1084, word: "pot", meaning: "鍋", example: "The soup is in the pot." },
+      { id: 1085, word: "teapot", meaning: "茶壺", example: "The teapot is hot." },
+      { id: 1086, word: "umbrella", meaning: "傘", example: "Take your umbrella. It may rain." },
+      { id: 1087, word: "toilet", meaning: "馬桶", example: "The toilet is in the bathroom." },
+      { id: 1088, word: "trash can", meaning: "垃圾桶", example: "Throw the paper into the trash can." },
+      { id: 1089, word: "design", meaning: "設計", example: "She can design a nice card." },
+      { id: 1090, word: "fix", meaning: "修理", example: "Dad can fix the toy car." },
+      { id: 1091, word: "sweep", meaning: "掃地", example: "Please sweep the floor." },
+      { id: 1092, word: "wash", meaning: "清洗", example: "Wash your hands before lunch." },
+      { id: 1093, word: "address", meaning: "地址", example: "Write your address here." },
+      { id: 1094, word: "road", meaning: "路", example: "The road is long." },
+      { id: 1095, word: "street", meaning: "街", example: "We walk down the street." },
+      { id: 1096, word: "area", meaning: "區域", example: "This area is quiet." },
+      { id: 1097, word: "bank", meaning: "銀行", example: "My father works at a bank." },
+      { id: 1098, word: "beach", meaning: "沙灘", example: "We play at the beach in summer." },
+      { id: 1099, word: "coast", meaning: "海岸線", example: "The boat is near the coast." },
+      { id: 1100, word: "desert", meaning: "沙漠", example: "The desert is very dry." },
+      { id: 1101, word: "island", meaning: "島嶼", example: "Taiwan is an island." },
+      { id: 1102, word: "forest", meaning: "森林", example: "Many birds live in the forest." },
+      { id: 1103, word: "hill", meaning: "山丘", example: "The sheep are on the hill." },
+      { id: 1104, word: "environment", meaning: "環境", example: "We should protect the environment." },
+      { id: 1105, word: "lake", meaning: "湖", example: "The ducks swim in the lake." },
+      { id: 1106, word: "mountain", meaning: "山", example: "The mountain is very high." },
+      { id: 1107, word: "animal", meaning: "動物", example: "A panda is a cute animal." },
+      { id: 1108, word: "bear", meaning: "熊", example: "The bear is big and strong." },
+      { id: 1109, word: "chicken", meaning: "雞", example: "The chicken is in the yard." },
+      { id: 1110, word: "cow", meaning: "牛", example: "The cow gives us milk." },
+      { id: 1111, word: "rhino", meaning: "犀牛", example: "The rhino has a big horn." },
+      { id: 1112, word: "koala", meaning: "無尾熊", example: "The koala sleeps in the tree." },
+      { id: 1113, word: "crocodile", meaning: "鱷魚", example: "The crocodile lives in the water." },
+      { id: 1114, word: "ostrich", meaning: "鴕鳥", example: "The ostrich can run fast." },
+      { id: 1115, word: "mantis", meaning: "螳螂", example: "The mantis is on the leaf." },
+      { id: 1116, word: "parrot", meaning: "鸚鵡", example: "The parrot can say hello." },
+      { id: 1117, word: "snail", meaning: "蝸牛", example: "The snail moves slowly." },
+      { id: 1118, word: "chameleon", meaning: "變色龍", example: "The chameleon changes colors." },
+      { id: 1119, word: "beetle", meaning: "甲蟲", example: "The beetle is under the rock." },
+      { id: 1120, word: "spider", meaning: "蜘蛛", example: "The spider makes a web." },
+      { id: 1121, word: "firefly", meaning: "螢火蟲", example: "The firefly shines at night." },
+      { id: 1122, word: "panda", meaning: "熊貓", example: "The panda eats bamboo." },
+      { id: 1123, word: "penguin", meaning: "企鵝", example: "The penguin walks on the ice." },
+      { id: 1124, word: "bee", meaning: "蜜蜂", example: "A bee is on the flower." },
+      { id: 1125, word: "mosquito", meaning: "蚊子", example: "A mosquito is buzzing near my ear." },
+      { id: 1126, word: "cockroach", meaning: "蟑螂", example: "The cockroach runs very fast." },
+      { id: 1127, word: "ant", meaning: "螞蟻", example: "The ant carries food." },
+      { id: 1128, word: "butterfly", meaning: "蝴蝶", example: "The butterfly is colorful." },
+      { id: 1129, word: "dragonfly", meaning: "蜻蜓", example: "A dragonfly is flying over the pond." },
+      { id: 1130, word: "shrimp", meaning: "蝦子", example: "The shrimp is small." },
+      { id: 1131, word: "frog", meaning: "青蛙", example: "The frog can jump high." },
+      { id: 1132, word: "hippo", meaning: "河馬", example: "The hippo likes the water." },
+      { id: 1133, word: "kangaroo", meaning: "袋鼠", example: "The kangaroo can jump far." },
+      { id: 1134, word: "giraffe", meaning: "長頸鹿", example: "The giraffe has a long neck." },
+      { id: 1135, word: "deer", meaning: "鹿", example: "The deer runs in the forest." },
+      { id: 1136, word: "dinosaur", meaning: "恐龍", example: "The child likes dinosaur books." },
+      { id: 1137, word: "caterpillar", meaning: "毛毛蟲", example: "The caterpillar is on the leaf." },
+      { id: 1138, word: "donkey", meaning: "驢子", example: "The donkey carries a bag." },
+      { id: 1139, word: "duck", meaning: "鴨子", example: "The duck swims in the pond." },
+      { id: 1140, word: "eagle", meaning: "老鷹", example: "The eagle flies high." },
+      { id: 1141, word: "lion", meaning: "獅子", example: "The lion is strong." },
+      { id: 1142, word: "tiger", meaning: "老虎", example: "The tiger has stripes." },
+      { id: 1143, word: "zebra", meaning: "斑馬", example: "The zebra is black and white." },
+      { id: 1144, word: "horse", meaning: "馬", example: "The horse runs on the farm." },
+      { id: 1145, word: "rat", meaning: "老鼠", example: "The rat hides under the box." },
+      { id: 1146, word: "dragon", meaning: "龍", example: "The dragon is in the story." },
+      { id: 1147, word: "snake", meaning: "蛇", example: "The snake is long." },
+      { id: 1148, word: "goat", meaning: "山羊", example: "The goat eats grass." },
+      { id: 1149, word: "monkey", meaning: "猴子", example: "The monkey climbs the tree." },
+      { id: 1150, word: "owl", meaning: "貓頭鷹", example: "The owl is awake at night." }
+    ];
+
+    const DOC_CATEGORY_MAP = {
+      black: "Colors",
+      blue: "Colors",
+      brown: "Colors",
+      golden: "Colors",
+      gray: "Colors",
+      orange: "Colors",
+      pink: "Colors",
+      green: "Colors",
+      purple: "Colors",
+      red: "Colors",
+      white: "Colors",
+      yellow: "Colors",
+      bed: "House & Apartments",
+      hanger: "House & Apartments",
+      pillow: "House & Apartments",
+      sheet: "House & Apartments",
+      toothbrush: "House & Apartments",
+      soap: "House & Apartments",
+      towel: "House & Apartments",
+      bench: "House & Apartments",
+      bookcase: "House & Apartments",
+      chair: "House & Apartments",
+      closet: "House & Apartments",
+      couch: "House & Apartments",
+      curtain: "House & Apartments",
+      desk: "House & Apartments",
+      drawer: "House & Apartments",
+      faucet: "House & Apartments",
+      lamp: "House & Apartments",
+      light: "House & Apartments",
+      mirror: "House & Apartments",
+      shelf: "House & Apartments",
+      sink: "House & Apartments",
+      sofa: "House & Apartments",
+      table: "House & Apartments",
+      tub: "House & Apartments",
+      blanket: "House & Apartments",
+      carpet: "House & Apartments",
+      computer: "House & Apartments",
+      dresser: "House & Apartments",
+      dryer: "House & Apartments",
+      fan: "House & Apartments",
+      apartment: "House & Apartments",
+      building: "House & Apartments",
+      house: "House & Apartments",
+      home: "House & Apartments",
+      basement: "House & Apartments",
+      bathroom: "House & Apartments",
+      bedroom: "House & Apartments",
+      "dining room": "House & Apartments",
+      fence: "House & Apartments",
+      garage: "House & Apartments",
+      garden: "House & Apartments",
+      hall: "House & Apartments",
+      kitchen: "House & Apartments",
+      "living room": "House & Apartments",
+      furniture: "House & Apartments",
+      "study room": "House & Apartments",
+      yard: "House & Apartments",
+      balcony: "House & Apartments",
+      ceiling: "House & Apartments",
+      door: "House & Apartments",
+      downstairs: "House & Apartments",
+      floor: "House & Apartments",
+      gate: "House & Apartments",
+      roof: "House & Apartments",
+      stairs: "House & Apartments",
+      upstairs: "House & Apartments",
+      wall: "House & Apartments",
+      window: "House & Apartments",
+      "air conditioner": "House & Apartments",
+      bath: "House & Apartments",
+      camera: "House & Apartments",
+      flashlight: "House & Apartments",
+      freezer: "House & Apartments",
+      heater: "House & Apartments",
+      machine: "House & Apartments",
+      tape: "House & Apartments",
+      microwave: "House & Apartments",
+      oven: "House & Apartments",
+      radio: "House & Apartments",
+      refrigerator: "House & Apartments",
+      speaker: "House & Apartments",
+      stove: "House & Apartments",
+      key: "House & Apartments",
+      telephone: "House & Apartments",
+      television: "House & Apartments",
+      video: "House & Apartments",
+      basket: "House & Apartments",
+      candle: "House & Apartments",
+      housework: "House & Apartments",
+      mat: "House & Apartments",
+      needle: "House & Apartments",
+      pan: "House & Apartments",
+      pot: "House & Apartments",
+      teapot: "House & Apartments",
+      umbrella: "House & Apartments",
+      toilet: "House & Apartments",
+      "trash can": "House & Apartments",
+      clean: "House & Apartments",
+      design: "House & Apartments",
+      fix: "House & Apartments",
+      sweep: "House & Apartments",
+      wash: "House & Apartments",
+      address: "House & Apartments",
+      road: "House & Apartments",
+      street: "House & Apartments",
+      area: "Geographical terms",
+      bank: "Geographical terms",
+      beach: "Geographical terms",
+      coast: "Geographical terms",
+      desert: "Geographical terms",
+      island: "Geographical terms",
+      forest: "Geographical terms",
+      hill: "Geographical terms",
+      environment: "Geographical terms",
+      lake: "Geographical terms",
+      mountain: "Geographical terms",
+      animal: "Animals & insects",
+      bear: "Animals & insects",
+      cat: "Animals & insects",
+      chicken: "Animals & insects",
+      cow: "Animals & insects",
+      rhino: "Animals & insects",
+      koala: "Animals & insects",
+      crocodile: "Animals & insects",
+      ostrich: "Animals & insects",
+      mantis: "Animals & insects",
+      parrot: "Animals & insects",
+      snail: "Animals & insects",
+      chameleon: "Animals & insects",
+      beetle: "Animals & insects",
+      spider: "Animals & insects",
+      firefly: "Animals & insects",
+      panda: "Animals & insects",
+      penguin: "Animals & insects",
+      bee: "Animals & insects",
+      mosquito: "Animals & insects",
+      cockroach: "Animals & insects",
+      dog: "Animals & insects",
+      ant: "Animals & insects",
+      butterfly: "Animals & insects",
+      dragonfly: "Animals & insects",
+      shrimp: "Animals & insects",
+      frog: "Animals & insects",
+      hippo: "Animals & insects",
+      kangaroo: "Animals & insects",
+      giraffe: "Animals & insects",
+      deer: "Animals & insects",
+      dinosaur: "Animals & insects",
+      caterpillar: "Animals & insects",
+      donkey: "Animals & insects",
+      duck: "Animals & insects",
+      eagle: "Animals & insects",
+      lion: "Animals & insects",
+      tiger: "Animals & insects",
+      zebra: "Animals & insects",
+      horse: "Animals & insects",
+      rat: "Animals & insects",
+      bird: "Animals & insects",
+      rabbit: "Animals & insects",
+      dragon: "Animals & insects",
+      snake: "Animals & insects",
+      goat: "Animals & insects",
+      monkey: "Animals & insects",
+      owl: "Animals & insects",
+      fish: "Animals & insects",
+      turtle: "Animals & insects"
+    };
+
+    const words = mergeWordLists([], importedWords).map((item) => ({
+      ...item,
+      category: DOC_CATEGORY_MAP[item.word.trim().toLowerCase()] || "原本 100 字"
+    }));
+
+    const CATEGORY_ORDER = [
+      "Colors",
+      "House & Apartments",
+      "Geographical terms",
+      "Animals & insects"
+    ];
+
+    const VALID_WORD_IDS = new Set(words.map((item) => item.id));
+
+    function normalizeSelectedIds(ids) {
+      return ids.filter((id) => VALID_WORD_IDS.has(id));
+    }
+
+    const state = {
+      selectedIds: new Set(normalizeSelectedIds(loadSelectedIds())),
+      search: "",
+      category: "all",
+      flashIndex: 0,
+      flashSide: "front",
+      quiz: { current: null, score: 0, total: 0 },
+      spell: { current: null, score: 0, total: 0 }
+    };
+
+    const wordGrid = document.getElementById("wordGrid");
+    const selectedList = document.getElementById("selectedList");
+    const totalWordsStat = document.getElementById("totalWordsStat");
+    const selectedWordsStat = document.getElementById("selectedWordsStat");
+    const searchInput = document.getElementById("searchInput");
+    const categoryBar = document.getElementById("categoryBar");
+
+    const flashcard = document.getElementById("flashcard");
+    const prevCardBtn = document.getElementById("prevCardBtn");
+    const nextCardBtn = document.getElementById("nextCardBtn");
+    const flipCardBtn = document.getElementById("flipCardBtn");
+    const speakBtn = document.getElementById("speakBtn");
+
+    const quizQuestion = document.getElementById("quizQuestion");
+    const quizOptions = document.getElementById("quizOptions");
+    const quizFeedback = document.getElementById("quizFeedback");
+    const quizScore = document.getElementById("quizScore");
+
+    const spellQuestion = document.getElementById("spellQuestion");
+    const scrambledLetters = document.getElementById("scrambledLetters");
+    const spellInput = document.getElementById("spellInput");
+    const spellFeedback = document.getElementById("spellFeedback");
+    const spellScore = document.getElementById("spellScore");
+
+    function loadSelectedIds() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function saveSelectedIds() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizeSelectedIds(Array.from(state.selectedIds))));
+    }
+
+    function getSelectedWords() {
+      return words.filter((item) => state.selectedIds.has(item.id));
+    }
+
+    function shuffled(list) {
+      const copy = [...list];
+      for (let index = copy.length - 1; index > 0; index -= 1) {
+        const randomIndex = Math.floor(Math.random() * (index + 1));
+        [copy[index], copy[randomIndex]] = [copy[randomIndex], copy[index]];
+      }
+      return copy;
+    }
+
+    function scrambleWord(word) {
+      if (word.length < 2) {
+        return word;
+      }
+
+      let mixed = word;
+      while (mixed === word) {
+        mixed = shuffled(word.split("")).join("");
+      }
+      return mixed;
+    }
+
+    function renderCategoryBar() {
+      const categories = ["all", ...CATEGORY_ORDER.filter((category) =>
+        words.some((item) => item.category === category)
+      )];
+
+      categoryBar.innerHTML = categories.map((category) => {
+        const active = state.category === category ? "active" : "";
+        const label = category === "all" ? "全部主題" : category;
+        return `<button class="category-pill ${active}" data-category="${category}">${label}</button>`;
+      }).join("");
+    }
+
+    function renderWordGrid() {
+      const keyword = state.search.trim().toLowerCase();
+      const filtered = words.filter((item) => {
+        const matchSearch = !keyword || item.word.toLowerCase().includes(keyword) || item.meaning.includes(keyword);
+        const matchCategory = state.category === "all" || item.category === state.category;
+        return matchSearch && matchCategory;
+      });
+
+      if (filtered.length === 0) {
+        wordGrid.innerHTML = '<div class="empty">這個主題目前沒有符合搜尋條件的單字，試試看切換主題或換個關鍵字。</div>';
+        return;
+      }
+
+      const grouped = CATEGORY_ORDER.map((category) => ({
+        category,
+        items: filtered.filter((item) => item.category === category)
+      })).filter((group) => group.items.length > 0);
+
+      wordGrid.innerHTML = grouped.map((group) => `
+        <section class="word-group">
+          <div class="word-group-title">
+            <span>${group.category}</span>
+            <span class="word-group-count">${group.items.length} 個單字</span>
+          </div>
+          <div class="word-group-grid">
+            ${group.items.map((item) => `
+              <label class="word-item">
+                <input type="checkbox" data-word-id="${item.id}" ${state.selectedIds.has(item.id) ? "checked" : ""} />
+                <div class="word-main">
+                  <div class="word-text">${item.word}</div>
+                  <div class="word-category">${item.category}</div>
+                  <div class="word-meta">#${item.id}</div>
+                  <div class="word-meaning">${item.meaning}</div>
+                  <div class="word-example">${item.example}</div>
                 </div>
-            </div>
-            <div class="practice-controls">
-                <button id="btn-forgot" class="btn-secondary">Still Learning</button>
-                <button id="btn-known" class="btn-success">I Know This</button>
-            </div>
+              </label>
+            `).join("")}
+          </div>
+        </section>
+      `).join("");
+    }
+
+    function renderSelectedList() {
+      const selectedWords = getSelectedWords();
+      if (selectedWords.length === 0) {
+        selectedList.innerHTML = '<div class="empty">還沒有勾選任何單字。先從左邊選字，單字卡和遊戲就會自動更新。</div>';
+        return;
+      }
+
+      selectedList.innerHTML = selectedWords.map((item) => `
+        <div class="selected-chip">
+          ${item.word}
+          <button class="chip-remove" data-remove-id="${item.id}" aria-label="移除 ${item.word}">×</button>
         </div>
-    </div>
+      `).join("");
+    }
 
-    <!-- Modal: Quiz Mode -->
-    <div id="modal-quiz" class="modal-overlay hidden">
-        <div class="modal-content glass-panel quiz-panel">
-            <div class="modal-header">
-                <h2>Spelling Quiz</h2>
-                <button class="btn-close" id="btn-close-quiz">&times;</button>
-            </div>
-            <div class="quiz-container">
-                <div class="quiz-question">
-                    <p class="quiz-label">Definition:</p>
-                    <p id="quiz-def" class="def-text">Loading...</p>
-                </div>
-                <div class="quiz-answer">
-                    <input type="text" id="quiz-input" placeholder="Type the word..." autocomplete="off">
-                    <div id="quiz-feedback" class="feedback-msg hidden"></div>
-                </div>
-            </div>
-            <div class="quiz-controls">
-                <button id="btn-give-up" class="btn-secondary">Give Up</button>
-                <button id="btn-check" class="btn-submit">Check</button>
-            </div>
-        </div>
-    </div>
+    function renderStats() {
+      totalWordsStat.textContent = words.length;
+      selectedWordsStat.textContent = state.selectedIds.size;
+    }
 
-    <script src="script.js"></script>
+    function renderFlashcard() {
+      const selectedWords = getSelectedWords();
+      const hasWords = selectedWords.length > 0;
+      prevCardBtn.disabled = !hasWords;
+      nextCardBtn.disabled = !hasWords;
+      flipCardBtn.disabled = !hasWords;
+      speakBtn.disabled = !hasWords;
+
+      if (!hasWords) {
+        flashcard.innerHTML = `
+          <div class="flashcard-label">READY TO PLAY</div>
+          <div class="flashcard-main">先選幾個單字</div>
+          <div class="flashcard-extra">從左邊勾選今天要練習的字，這裡就會出現單字卡。</div>
+        `;
+        return;
+      }
+
+      if (state.flashIndex >= selectedWords.length) {
+        state.flashIndex = 0;
+      }
+
+      const current = selectedWords[state.flashIndex];
+      if (state.flashSide === "front") {
+        flashcard.innerHTML = `
+          <div class="flashcard-label">WORD CARD</div>
+          <div class="flashcard-main">${current.word}</div>
+          <div class="flashcard-extra">想一想它的中文意思是什麼，再按「翻卡」確認答案。</div>
+        `;
+      } else {
+        flashcard.innerHTML = `
+          <div class="flashcard-label">MEANING + EXAMPLE</div>
+          <div class="flashcard-main">${current.meaning}</div>
+          <div class="flashcard-extra">${current.example}</div>
+        `;
+      }
+    }
+
+    function generateQuiz() {
+      const selectedWords = getSelectedWords();
+      if (selectedWords.length < 4) {
+        state.quiz.current = null;
+        quizQuestion.textContent = "先勾選至少 4 個單字再開始。";
+        quizOptions.innerHTML = "";
+        quizFeedback.textContent = "";
+        quizFeedback.className = "feedback";
+        return;
+      }
+
+      const correct = selectedWords[Math.floor(Math.random() * selectedWords.length)];
+      const wrongChoices = shuffled(
+        selectedWords.filter((item) => item.id !== correct.id)
+      ).slice(0, 3);
+      const options = shuffled([correct, ...wrongChoices]);
+      state.quiz.current = { correct, options };
+
+      quizQuestion.textContent = `「${correct.word}」的中文意思是哪一個？`;
+      quizOptions.innerHTML = options.map((option) => `
+        <button class="option" data-quiz-id="${option.id}">${option.meaning}</button>
+      `).join("");
+      quizFeedback.textContent = "";
+      quizFeedback.className = "feedback";
+    }
+
+    function updateQuizScore() {
+      quizScore.textContent = `分數 ${state.quiz.score} / ${state.quiz.total}`;
+    }
+
+    function checkQuizAnswer(id) {
+      if (!state.quiz.current) {
+        return;
+      }
+
+      state.quiz.total += 1;
+      if (id === state.quiz.current.correct.id) {
+        state.quiz.score += 1;
+        quizFeedback.textContent = "答對了，真棒。";
+        quizFeedback.className = "feedback good";
+      } else {
+        quizFeedback.textContent = `再試一次，正確答案是「${state.quiz.current.correct.meaning}」。`;
+        quizFeedback.className = "feedback bad";
+      }
+      updateQuizScore();
+      setTimeout(generateQuiz, 900);
+    }
+
+    function generateSpellGame() {
+      const selectedWords = getSelectedWords();
+      const spellableWords = selectedWords.filter((item) => /^[a-z]+$/i.test(item.word));
+      if (spellableWords.length === 0) {
+        state.spell.current = null;
+        spellQuestion.textContent = "請先勾選至少 1 個單一英文單字再開始。";
+        scrambledLetters.textContent = "-";
+        spellFeedback.textContent = "";
+        spellFeedback.className = "feedback";
+        spellInput.value = "";
+        return;
+      }
+
+      const current = spellableWords[Math.floor(Math.random() * spellableWords.length)];
+      state.spell.current = current;
+      spellQuestion.textContent = `請拼出「${current.meaning}」的英文單字。`;
+      scrambledLetters.textContent = scrambleWord(current.word);
+      spellFeedback.textContent = "";
+      spellFeedback.className = "feedback";
+      spellInput.value = "";
+    }
+
+    function updateSpellScore() {
+      spellScore.textContent = `分數 ${state.spell.score} / ${state.spell.total}`;
+    }
+
+    function checkSpellAnswer() {
+      if (!state.spell.current) {
+        return;
+      }
+
+      const answer = spellInput.value.trim().toLowerCase();
+      if (!answer) {
+        spellFeedback.textContent = "先輸入答案喔。";
+        spellFeedback.className = "feedback bad";
+        return;
+      }
+
+      state.spell.total += 1;
+      if (answer === state.spell.current.word) {
+        state.spell.score += 1;
+        spellFeedback.textContent = "答對了，拼字成功。";
+        spellFeedback.className = "feedback good";
+      } else {
+        spellFeedback.textContent = `差一點，正確答案是 ${state.spell.current.word}。`;
+        spellFeedback.className = "feedback bad";
+      }
+      updateSpellScore();
+      setTimeout(generateSpellGame, 900);
+    }
+
+    function refreshAll() {
+      renderCategoryBar();
+      renderWordGrid();
+      renderSelectedList();
+      renderStats();
+      renderFlashcard();
+      generateQuiz();
+      generateSpellGame();
+    }
+
+    function setSelection(ids) {
+      state.selectedIds = new Set(ids);
+      state.flashIndex = 0;
+      state.flashSide = "front";
+      saveSelectedIds();
+      refreshAll();
+    }
+
+    function pickRandom(count) {
+      const chosen = shuffled(words).slice(0, count).map((item) => item.id);
+      setSelection(chosen);
+    }
+
+    function speakCurrentWord() {
+      const selectedWords = getSelectedWords();
+      if (selectedWords.length === 0 || !window.speechSynthesis) {
+        return;
+      }
+
+      const current = selectedWords[state.flashIndex];
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(current.word);
+      utterance.lang = "en-US";
+      utterance.rate = 0.65;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    searchInput.addEventListener("input", (event) => {
+      state.search = event.target.value;
+      renderWordGrid();
+    });
+
+    categoryBar.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLButtonElement)) {
+        return;
+      }
+      state.category = target.dataset.category || "all";
+      renderCategoryBar();
+      renderWordGrid();
+    });
+
+    wordGrid.addEventListener("change", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement) || target.type !== "checkbox") {
+        return;
+      }
+
+      const id = Number(target.dataset.wordId);
+      if (target.checked) {
+        state.selectedIds.add(id);
+      } else {
+        state.selectedIds.delete(id);
+      }
+      state.flashIndex = 0;
+      state.flashSide = "front";
+      saveSelectedIds();
+      refreshAll();
+    });
+
+    selectedList.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLButtonElement)) {
+        return;
+      }
+
+      const id = Number(target.dataset.removeId);
+      if (!Number.isNaN(id)) {
+        state.selectedIds.delete(id);
+        saveSelectedIds();
+        refreshAll();
+      }
+    });
+
+    prevCardBtn.addEventListener("click", () => {
+      const selectedWords = getSelectedWords();
+      if (!selectedWords.length) {
+        return;
+      }
+      state.flashIndex = (state.flashIndex - 1 + selectedWords.length) % selectedWords.length;
+      state.flashSide = "front";
+      renderFlashcard();
+    });
+
+    nextCardBtn.addEventListener("click", () => {
+      const selectedWords = getSelectedWords();
+      if (!selectedWords.length) {
+        return;
+      }
+      state.flashIndex = (state.flashIndex + 1) % selectedWords.length;
+      state.flashSide = "front";
+      renderFlashcard();
+    });
+
+    flipCardBtn.addEventListener("click", () => {
+      state.flashSide = state.flashSide === "front" ? "back" : "front";
+      renderFlashcard();
+    });
+
+    speakBtn.addEventListener("click", speakCurrentWord);
+
+    document.getElementById("random5Btn").addEventListener("click", () => pickRandom(5));
+    document.getElementById("random10Btn").addEventListener("click", () => pickRandom(10));
+    document.getElementById("random15Btn").addEventListener("click", () => pickRandom(15));
+    document.getElementById("clearBtn").addEventListener("click", () => setSelection([]));
+    document.getElementById("newQuizBtn").addEventListener("click", generateQuiz);
+    document.getElementById("newSpellBtn").addEventListener("click", generateSpellGame);
+    document.getElementById("checkSpellBtn").addEventListener("click", checkSpellAnswer);
+    spellInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        checkSpellAnswer();
+      }
+    });
+
+    quizOptions.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLButtonElement)) {
+        return;
+      }
+      checkQuizAnswer(Number(target.dataset.quizId));
+    });
+
+    totalWordsStat.textContent = words.length;
+    updateQuizScore();
+    updateSpellScore();
+    refreshAll();
+  </script>
 </body>
-
 </html>
