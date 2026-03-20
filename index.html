@@ -587,6 +587,153 @@
       text-decoration: none;
     }
 
+    .match-shell {
+      background: linear-gradient(180deg, #15133b, #0d0b2a);
+      border-radius: 28px;
+      padding: 18px;
+      color: rgba(255, 255, 255, 0.96);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+    }
+
+    .match-topbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .match-title {
+      font-size: 1.3rem;
+      font-weight: 900;
+    }
+
+    .match-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .match-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 92px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-weight: 900;
+    }
+
+    .match-message {
+      min-height: 26px;
+      margin-bottom: 14px;
+      color: rgba(255, 255, 255, 0.84);
+      line-height: 1.6;
+      font-weight: 700;
+    }
+
+    .match-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .match-result {
+      display: none;
+      min-height: 520px;
+      padding: 28px 14px 18px;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      text-align: center;
+    }
+
+    .match-result.active {
+      display: flex;
+    }
+
+    .match-result-copy {
+      margin-top: 20px;
+    }
+
+    .match-result-title {
+      font-size: clamp(2.3rem, 8vw, 4rem);
+      font-weight: 900;
+      margin-bottom: 18px;
+      line-height: 1.08;
+    }
+
+    .match-result-text {
+      font-size: clamp(1.4rem, 5vw, 2.5rem);
+      line-height: 1.35;
+      color: rgba(255, 255, 255, 0.96);
+    }
+
+    .match-result-actions {
+      width: 100%;
+      display: grid;
+      gap: 14px;
+      margin-top: 28px;
+    }
+
+    .match-result-button {
+      width: 100%;
+      border: none;
+      border-radius: 999px;
+      padding: 18px 20px;
+      font: inherit;
+      font-size: clamp(1.3rem, 4vw, 2rem);
+      font-weight: 900;
+      cursor: pointer;
+      color: #fff;
+      background: rgba(151, 160, 196, 0.62);
+    }
+
+    .match-result-button.primary {
+      background: linear-gradient(135deg, #5865ff, #4f5dff);
+      box-shadow: 0 14px 26px rgba(88, 101, 255, 0.26);
+    }
+
+    .match-card {
+      min-height: 132px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      font: inherit;
+      font-size: clamp(1.2rem, 3.5vw, 2rem);
+      font-weight: 500;
+      line-height: 1.15;
+      padding: 16px 12px;
+      word-break: break-word;
+      cursor: pointer;
+      transition: transform 0.14s ease, background 0.14s ease, border-color 0.14s ease, opacity 0.14s ease;
+    }
+
+    .match-card:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.11);
+    }
+
+    .match-card.selected {
+      border-color: rgba(255, 243, 176, 0.8);
+      background: rgba(255, 243, 176, 0.18);
+    }
+
+    .match-card.matched {
+      opacity: 0.38;
+      background: rgba(67, 170, 139, 0.18);
+      border-color: rgba(67, 170, 139, 0.34);
+    }
+
+    .match-card:disabled {
+      cursor: default;
+      transform: none;
+    }
+
     .feedback {
       min-height: 26px;
       font-weight: 800;
@@ -651,6 +798,16 @@
       .flashcard {
         min-height: 220px;
         padding: 20px 16px;
+      }
+
+      .match-grid {
+        gap: 8px;
+      }
+
+      .match-card {
+        min-height: 112px;
+        padding: 12px 8px;
+        font-size: clamp(1.1rem, 5vw, 1.8rem);
       }
     }
   </style>
@@ -732,6 +889,7 @@
 
           <div class="sub-tabs" id="gameTabs">
             <button class="sub-tab active" data-game-tab="theme" type="button">主題遊戲</button>
+            <button class="sub-tab" data-game-tab="match" type="button">中英配對</button>
             <button class="sub-tab" data-game-tab="quiz" type="button">找出正確意思</button>
             <button class="sub-tab" data-game-tab="spell" type="button">拼字小挑戰</button>
           </div>
@@ -773,6 +931,39 @@
                 >
                   打開遊戲
                 </a>
+              </div>
+            </div>
+          </div>
+          </div>
+
+          <div class="game-panel" data-game-panel="match">
+          <div class="game-card" style="margin-top: 16px;">
+            <div class="match-shell">
+              <div class="match-topbar">
+                <div>
+                  <div class="match-title">中英配對</div>
+                  <p class="tiny-note" style="color: rgba(255, 255, 255, 0.72); margin-top: 6px;">點兩張卡，把英文和中文意思配成一對。</p>
+                </div>
+                <div class="match-stats">
+                  <div class="match-pill" id="matchTimer">90 秒</div>
+                  <div class="match-pill" id="matchMoves">步數 0</div>
+                </div>
+              </div>
+              <div class="match-message" id="matchMessage">先勾選至少 3 個單字，配對遊戲會自動出題。</div>
+              <div class="match-grid" id="matchGrid"></div>
+              <div class="match-result" id="matchResult">
+                <div class="match-result-copy">
+                  <div class="match-result-title" id="matchResultTitle">不錯哦！</div>
+                  <div class="match-result-text" id="matchResultText">你的完成時間是 11.1 秒</div>
+                </div>
+                <div class="match-result-actions">
+                  <button class="match-result-button" id="matchResultReplayBtn" type="button">選擇新題目</button>
+                  <button class="match-result-button primary" id="matchResultAllWordsBtn" type="button">全部詞語</button>
+                  <button class="match-result-button" id="matchShareBtn" type="button">挑戰朋友</button>
+                </div>
+              </div>
+              <div class="mini-toolbar" style="margin-top: 16px;">
+                <button class="button secondary" id="resetMatchBtn">重新開始</button>
               </div>
             </div>
           </div>
@@ -1313,6 +1504,19 @@
       gameTab: "theme",
       flashIndex: 0,
       flashSide: "front",
+      match: {
+        cards: [],
+        firstPick: null,
+        secondPick: null,
+        moves: 0,
+        matchedPairs: 0,
+        totalPairs: 0,
+        timer: 90,
+        startedAt: null,
+        completedIn: null,
+        status: "need-more",
+        lock: false
+      },
       quiz: { current: null, score: 0, total: 0 },
       spell: { current: null, score: 0, total: 0 }
     };
@@ -1327,6 +1531,13 @@
     const gameTabs = document.getElementById("gameTabs");
     const sectionPanels = Array.from(document.querySelectorAll(".section-panel"));
     const gamePanels = Array.from(document.querySelectorAll(".game-panel"));
+    const matchGrid = document.getElementById("matchGrid");
+    const matchMessage = document.getElementById("matchMessage");
+    const matchTimer = document.getElementById("matchTimer");
+    const matchMoves = document.getElementById("matchMoves");
+    const matchResult = document.getElementById("matchResult");
+    const matchResultTitle = document.getElementById("matchResultTitle");
+    const matchResultText = document.getElementById("matchResultText");
 
     const flashcard = document.getElementById("flashcard");
     const prevCardBtn = document.getElementById("prevCardBtn");
@@ -1344,6 +1555,8 @@
     const spellInput = document.getElementById("spellInput");
     const spellFeedback = document.getElementById("spellFeedback");
     const spellScore = document.getElementById("spellScore");
+
+    let matchTimerId = null;
 
     function loadSelectedIds() {
       try {
@@ -1481,6 +1694,198 @@
         button.classList.toggle("active", active);
         button.setAttribute("aria-selected", active ? "true" : "false");
       });
+
+      if (state.gameTab === "match" && state.match.status === "ready") {
+        startMatchTimer();
+      }
+    }
+
+    function clearMatchTimer() {
+      if (matchTimerId) {
+        clearInterval(matchTimerId);
+        matchTimerId = null;
+      }
+    }
+
+    function createMatchDeck(sourceWords) {
+      return shuffled(sourceWords.flatMap((item) => ([
+        { id: `word-${item.id}`, pairId: item.id, type: "word", text: item.word, matched: false, selected: false },
+        { id: `meaning-${item.id}`, pairId: item.id, type: "meaning", text: item.meaning, matched: false, selected: false }
+      ])));
+    }
+
+    function setupMatchGame() {
+      clearMatchTimer();
+      const sourceWords = shuffled(getSelectedWords()).slice(0, 6);
+
+      if (sourceWords.length < 3) {
+        state.match = {
+          cards: [],
+          firstPick: null,
+          secondPick: null,
+          moves: 0,
+          matchedPairs: 0,
+          totalPairs: 0,
+          timer: 90,
+          startedAt: null,
+          completedIn: null,
+          status: "need-more",
+          lock: false
+        };
+        renderMatchGame();
+        return;
+      }
+
+      state.match = {
+        cards: createMatchDeck(sourceWords),
+        firstPick: null,
+        secondPick: null,
+        moves: 0,
+        matchedPairs: 0,
+        totalPairs: sourceWords.length,
+        timer: 90,
+        startedAt: null,
+        completedIn: null,
+        status: "ready",
+        lock: false
+      };
+      renderMatchGame();
+    }
+
+    function startMatchTimer() {
+      if (state.match.status !== "ready") {
+        return;
+      }
+
+      state.match.status = "playing";
+      state.match.startedAt = Date.now();
+      clearMatchTimer();
+      matchTimerId = setInterval(() => {
+        if (state.match.timer <= 1) {
+          state.match.timer = 0;
+          state.match.status = "timeout";
+          clearMatchTimer();
+        } else {
+          state.match.timer -= 1;
+        }
+        renderMatchGame();
+      }, 1000);
+      renderMatchGame();
+    }
+
+    function renderMatchGame() {
+      matchMoves.textContent = `步數 ${state.match.moves}`;
+      matchTimer.textContent = state.match.status === "need-more" ? "請先選字" : `${state.match.timer} 秒`;
+      const showResult = state.match.status === "done" || state.match.status === "timeout";
+      matchGrid.style.display = showResult ? "none" : "grid";
+      matchResult.classList.toggle("active", showResult);
+
+      if (state.match.status === "need-more") {
+        matchMessage.textContent = "先勾選至少 3 個單字，配對遊戲會自動出題。";
+        matchGrid.innerHTML = '<div class="empty" style="grid-column: 1 / -1;">建議先勾選 3 到 6 個單字，這樣配對盤面剛剛好。</div>';
+        matchResult.classList.remove("active");
+        return;
+      }
+
+      if (state.match.status === "ready") {
+        matchMessage.textContent = "切到這個遊戲時會自動開始倒數，快把英文和中文配成一對。";
+      } else if (state.match.status === "playing") {
+        matchMessage.textContent = `已配對 ${state.match.matchedPairs} / ${state.match.totalPairs} 組，繼續加油。`;
+      } else if (state.match.status === "done") {
+        matchMessage.textContent = `太棒了，全部配對完成，共用了 ${state.match.moves} 步。`;
+      } else if (state.match.status === "timeout") {
+        matchMessage.textContent = "時間到，按「重新開始」可以再玩一次。";
+      }
+
+      if (state.match.status === "done") {
+        matchResultTitle.textContent = "不錯哦！";
+        matchResultText.textContent = `你的完成時間是 ${state.match.completedIn} 秒`;
+      } else if (state.match.status === "timeout") {
+        matchResultTitle.textContent = "再試一次！";
+        matchResultText.textContent = `這次配對了 ${state.match.matchedPairs} / ${state.match.totalPairs} 組`;
+      }
+
+      matchGrid.innerHTML = state.match.cards.map((card) => `
+        <button
+          class="match-card ${card.selected ? "selected" : ""} ${card.matched ? "matched" : ""}"
+          data-match-id="${card.id}"
+          ${card.matched || state.match.status === "timeout" ? "disabled" : ""}
+        >
+          ${card.text}
+        </button>
+      `).join("");
+    }
+
+    function finishMatchAttempt(isMatch) {
+      const firstCard = state.match.cards.find((card) => card.id === state.match.firstPick);
+      const secondCard = state.match.cards.find((card) => card.id === state.match.secondPick);
+
+      if (!firstCard || !secondCard) {
+        state.match.lock = false;
+        return;
+      }
+
+      if (isMatch) {
+        firstCard.matched = true;
+        secondCard.matched = true;
+        firstCard.selected = false;
+        secondCard.selected = false;
+        state.match.matchedPairs += 1;
+      } else {
+        firstCard.selected = false;
+        secondCard.selected = false;
+      }
+
+      state.match.firstPick = null;
+      state.match.secondPick = null;
+      state.match.lock = false;
+
+      if (state.match.matchedPairs === state.match.totalPairs) {
+        state.match.status = "done";
+        state.match.completedIn = ((Date.now() - state.match.startedAt) / 1000).toFixed(1);
+        clearMatchTimer();
+      }
+
+      renderMatchGame();
+    }
+
+    function handleMatchCardClick(cardId) {
+      if (state.match.status === "ready") {
+        startMatchTimer();
+      }
+
+      if (state.match.status !== "playing" || state.match.lock) {
+        return;
+      }
+
+      const chosenCard = state.match.cards.find((card) => card.id === cardId);
+      if (!chosenCard || chosenCard.matched || chosenCard.selected) {
+        return;
+      }
+
+      chosenCard.selected = true;
+
+      if (!state.match.firstPick) {
+        state.match.firstPick = chosenCard.id;
+        renderMatchGame();
+        return;
+      }
+
+      state.match.secondPick = chosenCard.id;
+      state.match.moves += 1;
+      state.match.lock = true;
+      renderMatchGame();
+
+      const firstCard = state.match.cards.find((card) => card.id === state.match.firstPick);
+      const secondCard = state.match.cards.find((card) => card.id === state.match.secondPick);
+      const isMatch = Boolean(
+        firstCard &&
+        secondCard &&
+        firstCard.pairId === secondCard.pairId &&
+        firstCard.type !== secondCard.type
+      );
+
+      setTimeout(() => finishMatchAttempt(isMatch), isMatch ? 220 : 700);
     }
 
     function renderFlashcard() {
@@ -1627,6 +2032,7 @@
       renderSelectedList();
       renderStats();
       renderFlashcard();
+      setupMatchGame();
       generateQuiz();
       generateSpellGame();
     }
@@ -1679,6 +2085,14 @@
       }
       state.gameTab = target.dataset.gameTab || "theme";
       renderGamePanels();
+    });
+
+    matchGrid.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLButtonElement)) {
+        return;
+      }
+      handleMatchCardClick(target.dataset.matchId || "");
     });
 
     categoryBar.addEventListener("click", (event) => {
@@ -1754,6 +2168,39 @@
     document.getElementById("random10Btn").addEventListener("click", () => pickRandom(10));
     document.getElementById("random15Btn").addEventListener("click", () => pickRandom(15));
     document.getElementById("clearBtn").addEventListener("click", () => setSelection([]));
+    document.getElementById("resetMatchBtn").addEventListener("click", setupMatchGame);
+    document.getElementById("matchResultReplayBtn").addEventListener("click", setupMatchGame);
+    document.getElementById("matchResultAllWordsBtn").addEventListener("click", () => {
+      state.activeTab = "picker";
+      renderSectionPanels();
+    });
+    document.getElementById("matchShareBtn").addEventListener("click", async () => {
+      const shareText = state.match.status === "done"
+        ? `我在英文單字卡網站的中英配對遊戲用了 ${state.match.completedIn} 秒完成，來挑戰看看。`
+        : `我在英文單字卡網站的中英配對遊戲配對了 ${state.match.matchedPairs} 組，來挑戰看看。`;
+
+      try {
+        if (navigator.share) {
+          await navigator.share({
+            title: "英文單字卡配對遊戲",
+            text: shareText,
+            url: window.location.href
+          });
+          return;
+        }
+
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(`${shareText} ${window.location.href}`);
+          matchMessage.textContent = "已把挑戰文字和網址複製起來，可以直接貼給朋友。";
+          return;
+        }
+      } catch (error) {
+        matchMessage.textContent = "分享暫時失敗，稍後再試一次。";
+        return;
+      }
+
+      matchMessage.textContent = "這台裝置不支援直接分享，可以把網址貼給朋友。";
+    });
     document.getElementById("newQuizBtn").addEventListener("click", generateQuiz);
     document.getElementById("newSpellBtn").addEventListener("click", generateSpellGame);
     document.getElementById("checkSpellBtn").addEventListener("click", checkSpellAnswer);
