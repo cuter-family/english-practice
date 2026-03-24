@@ -132,9 +132,6 @@
     }
 
     .section-tabs {
-      position: sticky;
-      top: 10px;
-      z-index: 5;
       margin-bottom: 16px;
     }
 
@@ -588,11 +585,15 @@
     }
 
     .match-shell {
-      background: linear-gradient(180deg, #15133b, #0d0b2a);
+      background:
+        radial-gradient(circle at top left, rgba(255, 243, 176, 0.24), transparent 30%),
+        radial-gradient(circle at top right, rgba(221, 249, 228, 0.28), transparent 26%),
+        linear-gradient(180deg, rgba(61, 103, 133, 0.96), rgba(36, 59, 83, 0.98));
       border-radius: 28px;
       padding: 18px;
-      color: rgba(255, 255, 255, 0.96);
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+      color: #f7fbff;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: 0 18px 40px rgba(36, 59, 83, 0.22);
     }
 
     .match-topbar {
@@ -607,6 +608,7 @@
     .match-title {
       font-size: 1.3rem;
       font-weight: 900;
+      color: #fff;
     }
 
     .match-stats {
@@ -622,8 +624,9 @@
       min-width: 92px;
       padding: 10px 14px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #fff;
       font-weight: 900;
     }
 
@@ -633,6 +636,22 @@
       color: rgba(255, 255, 255, 0.84);
       line-height: 1.6;
       font-weight: 700;
+    }
+
+    .match-message.bad {
+      color: #fff5f5;
+      background: rgba(214, 40, 57, 0.3);
+      border: 1px solid rgba(255, 184, 184, 0.35);
+      border-radius: 16px;
+      padding: 10px 12px;
+    }
+
+    .match-message.good {
+      color: #f4fff7;
+      background: rgba(43, 147, 72, 0.28);
+      border: 1px solid rgba(194, 255, 209, 0.3);
+      border-radius: 16px;
+      padding: 10px 12px;
     }
 
     .match-grid {
@@ -646,7 +665,7 @@
       min-height: 520px;
       padding: 28px 14px 18px;
       flex-direction: column;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
       text-align: center;
     }
@@ -669,14 +688,14 @@
     .match-result-text {
       font-size: clamp(1.4rem, 5vw, 2.5rem);
       line-height: 1.35;
-      color: rgba(255, 255, 255, 0.96);
+      color: rgba(255, 255, 255, 0.98);
     }
 
     .match-result-actions {
-      width: 100%;
+      width: min(100%, 420px);
       display: grid;
       gap: 14px;
-      margin-top: 28px;
+      margin-top: 36px;
     }
 
     .match-result-button {
@@ -689,20 +708,21 @@
       font-weight: 900;
       cursor: pointer;
       color: #fff;
-      background: rgba(151, 160, 196, 0.62);
+      background: linear-gradient(135deg, #227c9d, #43aa8b);
+      box-shadow: 0 14px 26px rgba(34, 124, 157, 0.22);
     }
 
     .match-result-button.primary {
-      background: linear-gradient(135deg, #5865ff, #4f5dff);
-      box-shadow: 0 14px 26px rgba(88, 101, 255, 0.26);
+      background: linear-gradient(135deg, #227c9d, #43aa8b);
+      box-shadow: 0 14px 26px rgba(34, 124, 157, 0.22);
     }
 
     .match-card {
       min-height: 132px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(34, 124, 157, 0.12);
       border-radius: 20px;
-      background: rgba(255, 255, 255, 0.08);
-      color: #fff;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 252, 255, 0.95));
+      color: var(--ink);
       font: inherit;
       font-size: clamp(1.2rem, 3.5vw, 2rem);
       font-weight: 500;
@@ -715,18 +735,36 @@
 
     .match-card:hover {
       transform: translateY(-1px);
-      background: rgba(255, 255, 255, 0.11);
+      background: linear-gradient(135deg, rgba(223, 245, 255, 0.98), rgba(255, 243, 176, 0.72));
+      border-color: rgba(244, 162, 97, 0.52);
+      box-shadow: 0 12px 24px rgba(36, 59, 83, 0.16);
+      color: #8b4b14;
     }
 
     .match-card.selected {
-      border-color: rgba(255, 243, 176, 0.8);
-      background: rgba(255, 243, 176, 0.18);
+      border-color: rgba(244, 162, 97, 0.52);
+      background: linear-gradient(135deg, rgba(255, 229, 209, 0.9), rgba(255, 243, 176, 0.58));
+      color: #8b4b14;
     }
 
     .match-card.matched {
       opacity: 0.38;
-      background: rgba(67, 170, 139, 0.18);
-      border-color: rgba(67, 170, 139, 0.34);
+      background: rgba(67, 170, 139, 0.14);
+      border-color: rgba(67, 170, 139, 0.3);
+    }
+
+    .match-card.correct {
+      background: linear-gradient(135deg, rgba(219, 255, 228, 0.98), rgba(221, 249, 228, 0.92));
+      border-color: rgba(43, 147, 72, 0.62);
+      color: #1b6b34;
+      box-shadow: 0 12px 24px rgba(43, 147, 72, 0.18);
+    }
+
+    .match-card.wrong {
+      background: linear-gradient(135deg, rgba(255, 213, 213, 0.96), rgba(255, 190, 190, 0.92));
+      border-color: rgba(214, 40, 57, 0.6);
+      color: #9d0208;
+      box-shadow: 0 12px 24px rgba(214, 40, 57, 0.18);
     }
 
     .match-card:disabled {
@@ -784,6 +822,12 @@
     }
 
     @media (max-width: 640px) {
+      .section-tabs {
+        position: sticky;
+        top: 10px;
+        z-index: 5;
+      }
+
       .page {
         width: min(100% - 18px, 1200px);
         margin-top: 10px;
@@ -942,7 +986,7 @@
               <div class="match-topbar">
                 <div>
                   <div class="match-title">中英配對</div>
-                  <p class="tiny-note" style="color: rgba(255, 255, 255, 0.72); margin-top: 6px;">點兩張卡，把英文和中文意思配成一對。</p>
+                  <p class="tiny-note" style="margin-top: 6px;">點兩張卡，把英文和中文意思配成一對。</p>
                 </div>
                 <div class="match-stats">
                   <div class="match-pill" id="matchTimer">90 秒</div>
@@ -957,13 +1001,8 @@
                   <div class="match-result-text" id="matchResultText">你的完成時間是 11.1 秒</div>
                 </div>
                 <div class="match-result-actions">
-                  <button class="match-result-button" id="matchResultReplayBtn" type="button">選擇新題目</button>
-                  <button class="match-result-button primary" id="matchResultAllWordsBtn" type="button">全部詞語</button>
-                  <button class="match-result-button" id="matchShareBtn" type="button">挑戰朋友</button>
+                  <button class="match-result-button primary" id="matchResultReplayBtn" type="button">重新開始</button>
                 </div>
-              </div>
-              <div class="mini-toolbar" style="margin-top: 16px;">
-                <button class="button secondary" id="resetMatchBtn">重新開始</button>
               </div>
             </div>
           </div>
@@ -1508,6 +1547,8 @@
         cards: [],
         firstPick: null,
         secondPick: null,
+        correctPair: [],
+        wrongPair: [],
         moves: 0,
         matchedPairs: 0,
         totalPairs: 0,
@@ -1723,6 +1764,8 @@
           cards: [],
           firstPick: null,
           secondPick: null,
+          correctPair: [],
+          wrongPair: [],
           moves: 0,
           matchedPairs: 0,
           totalPairs: 0,
@@ -1740,6 +1783,8 @@
         cards: createMatchDeck(sourceWords),
         firstPick: null,
         secondPick: null,
+        correctPair: [],
+        wrongPair: [],
         moves: 0,
         matchedPairs: 0,
         totalPairs: sourceWords.length,
@@ -1776,6 +1821,10 @@
     function renderMatchGame() {
       matchMoves.textContent = `步數 ${state.match.moves}`;
       matchTimer.textContent = state.match.status === "need-more" ? "請先選字" : `${state.match.timer} 秒`;
+      const isCorrectFeedback = state.match.correctPair.length > 0;
+      const isWrongFeedback = state.match.wrongPair.length > 0;
+      matchMessage.classList.toggle("good", isCorrectFeedback);
+      matchMessage.classList.toggle("bad", isWrongFeedback);
       const showResult = state.match.status === "done" || state.match.status === "timeout";
       matchGrid.style.display = showResult ? "none" : "grid";
       matchResult.classList.toggle("active", showResult);
@@ -1790,7 +1839,11 @@
       if (state.match.status === "ready") {
         matchMessage.textContent = "切到這個遊戲時會自動開始倒數，快把英文和中文配成一對。";
       } else if (state.match.status === "playing") {
-        matchMessage.textContent = `已配對 ${state.match.matchedPairs} / ${state.match.totalPairs} 組，繼續加油。`;
+        matchMessage.textContent = isWrongFeedback
+          ? "這兩張不對喔，再試試看別的組合。"
+          : isCorrectFeedback
+            ? "配對成功，做得很棒！"
+            : `已配對 ${state.match.matchedPairs} / ${state.match.totalPairs} 組，繼續加油。`;
       } else if (state.match.status === "done") {
         matchMessage.textContent = `太棒了，全部配對完成，共用了 ${state.match.moves} 步。`;
       } else if (state.match.status === "timeout") {
@@ -1807,7 +1860,7 @@
 
       matchGrid.innerHTML = state.match.cards.map((card) => `
         <button
-          class="match-card ${card.selected ? "selected" : ""} ${card.matched ? "matched" : ""}"
+          class="match-card ${card.selected ? "selected" : ""} ${card.matched ? "matched" : ""} ${state.match.correctPair.includes(card.id) ? "correct" : ""} ${state.match.wrongPair.includes(card.id) ? "wrong" : ""}"
           data-match-id="${card.id}"
           ${card.matched || state.match.status === "timeout" ? "disabled" : ""}
         >
@@ -1826,12 +1879,16 @@
       }
 
       if (isMatch) {
+        state.match.correctPair = [firstCard.id, secondCard.id];
         firstCard.matched = true;
         secondCard.matched = true;
         firstCard.selected = false;
         secondCard.selected = false;
+        state.match.wrongPair = [];
         state.match.matchedPairs += 1;
       } else {
+        state.match.correctPair = [];
+        state.match.wrongPair = [firstCard.id, secondCard.id];
         firstCard.selected = false;
         secondCard.selected = false;
       }
@@ -1847,6 +1904,18 @@
       }
 
       renderMatchGame();
+
+      if (isMatch) {
+        setTimeout(() => {
+          state.match.correctPair = [];
+          renderMatchGame();
+        }, 520);
+      } else {
+        setTimeout(() => {
+          state.match.wrongPair = [];
+          renderMatchGame();
+        }, 520);
+      }
     }
 
     function handleMatchCardClick(cardId) {
@@ -2168,39 +2237,7 @@
     document.getElementById("random10Btn").addEventListener("click", () => pickRandom(10));
     document.getElementById("random15Btn").addEventListener("click", () => pickRandom(15));
     document.getElementById("clearBtn").addEventListener("click", () => setSelection([]));
-    document.getElementById("resetMatchBtn").addEventListener("click", setupMatchGame);
     document.getElementById("matchResultReplayBtn").addEventListener("click", setupMatchGame);
-    document.getElementById("matchResultAllWordsBtn").addEventListener("click", () => {
-      state.activeTab = "picker";
-      renderSectionPanels();
-    });
-    document.getElementById("matchShareBtn").addEventListener("click", async () => {
-      const shareText = state.match.status === "done"
-        ? `我在英文單字卡網站的中英配對遊戲用了 ${state.match.completedIn} 秒完成，來挑戰看看。`
-        : `我在英文單字卡網站的中英配對遊戲配對了 ${state.match.matchedPairs} 組，來挑戰看看。`;
-
-      try {
-        if (navigator.share) {
-          await navigator.share({
-            title: "英文單字卡配對遊戲",
-            text: shareText,
-            url: window.location.href
-          });
-          return;
-        }
-
-        if (navigator.clipboard?.writeText) {
-          await navigator.clipboard.writeText(`${shareText} ${window.location.href}`);
-          matchMessage.textContent = "已把挑戰文字和網址複製起來，可以直接貼給朋友。";
-          return;
-        }
-      } catch (error) {
-        matchMessage.textContent = "分享暫時失敗，稍後再試一次。";
-        return;
-      }
-
-      matchMessage.textContent = "這台裝置不支援直接分享，可以把網址貼給朋友。";
-    });
     document.getElementById("newQuizBtn").addEventListener("click", generateQuiz);
     document.getElementById("newSpellBtn").addEventListener("click", generateSpellGame);
     document.getElementById("checkSpellBtn").addEventListener("click", checkSpellAnswer);
