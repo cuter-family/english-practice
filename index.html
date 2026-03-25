@@ -735,12 +735,14 @@
       transition: transform 0.14s ease, background 0.14s ease, border-color 0.14s ease, opacity 0.14s ease;
     }
 
-    .match-card:hover {
-      transform: translateY(-1px);
-      background: linear-gradient(135deg, rgba(223, 245, 255, 0.98), rgba(255, 243, 176, 0.72));
-      border-color: rgba(244, 162, 97, 0.52);
-      box-shadow: 0 12px 24px rgba(36, 59, 83, 0.16);
-      color: #8b4b14;
+    @media (hover: hover) and (pointer: fine) {
+      .match-card:hover {
+        transform: translateY(-1px);
+        background: linear-gradient(135deg, rgba(223, 245, 255, 0.98), rgba(255, 243, 176, 0.72));
+        border-color: rgba(244, 162, 97, 0.52);
+        box-shadow: 0 12px 24px rgba(36, 59, 83, 0.16);
+        color: #8b4b14;
+      }
     }
 
     .match-card.selected {
