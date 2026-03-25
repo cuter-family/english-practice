@@ -631,8 +631,11 @@
     }
 
     .match-message {
-      min-height: 26px;
+      min-height: 52px;
       margin-bottom: 14px;
+      padding: 10px 12px;
+      border: 1px solid transparent;
+      border-radius: 16px;
       color: rgba(255, 255, 255, 0.84);
       line-height: 1.6;
       font-weight: 700;
@@ -642,16 +645,12 @@
       color: #fff5f5;
       background: rgba(214, 40, 57, 0.3);
       border: 1px solid rgba(255, 184, 184, 0.35);
-      border-radius: 16px;
-      padding: 10px 12px;
     }
 
     .match-message.good {
       color: #f4fff7;
       background: rgba(43, 147, 72, 0.28);
       border: 1px solid rgba(194, 255, 209, 0.3);
-      border-radius: 16px;
-      padding: 10px 12px;
     }
 
     .match-grid {
@@ -1929,6 +1928,11 @@
 
       const chosenCard = state.match.cards.find((card) => card.id === cardId);
       if (!chosenCard || chosenCard.matched || chosenCard.selected) {
+        if (chosenCard && state.match.firstPick === chosenCard.id && !state.match.secondPick) {
+          chosenCard.selected = false;
+          state.match.firstPick = null;
+          renderMatchGame();
+        }
         return;
       }
 
