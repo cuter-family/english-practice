@@ -851,13 +851,24 @@
       }
 
       .match-grid {
-        gap: 8px;
+        gap: 7px;
       }
 
       .match-card {
-        min-height: 112px;
-        padding: 12px 8px;
-        font-size: clamp(1.1rem, 5vw, 1.8rem);
+        min-height: 102px;
+        padding: 10px 6px;
+        font-size: clamp(1rem, 4.6vw, 1.5rem);
+        line-height: 1.08;
+      }
+
+      .options {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .option {
+        min-height: 88px;
+        display: flex;
+        align-items: center;
       }
     }
   </style>
@@ -876,10 +887,6 @@
           <div class="stat-label">今天已勾選</div>
           <div class="stat-value" id="selectedWordsStat">0</div>
         </div>
-        <div class="stat">
-          <div class="stat-label">可玩的遊戲</div>
-          <div class="stat-value">2</div>
-        </div>
       </div>
     </section>
 
@@ -887,7 +894,7 @@
       <div class="section-tabs" id="sectionTabs">
         <button class="section-tab active" data-tab="picker" type="button">1. 勾選單字</button>
         <button class="section-tab" data-tab="flashcards" type="button">2. 單字卡</button>
-        <button class="section-tab" data-tab="games" type="button">3. 主題遊戲</button>
+        <button class="section-tab" data-tab="games" type="button">3. 單字練習</button>
       </div>
 
       <section class="panel section-panel active" data-panel="picker">
@@ -934,7 +941,7 @@
       </section>
 
       <section class="panel section-panel" data-panel="games">
-          <h2>3. 主題遊戲</h2>
+          <h2>3. 單字練習</h2>
           <p class="panel-subtitle">先在這裡切換主題遊戲、遊戲 A、遊戲 B。手機版一打開就能從最上方直接切換。</p>
 
           <div class="sub-tabs" id="gameTabs">
@@ -998,6 +1005,9 @@
                   <div class="match-pill" id="matchTimer">90 秒</div>
                   <div class="match-pill" id="matchMoves">步數 0</div>
                 </div>
+              </div>
+              <div class="mini-toolbar" style="margin-bottom: 12px;">
+                <button class="button ghost" id="matchRestartBtn" type="button">重新開始</button>
               </div>
               <div class="match-message" id="matchMessage">先勾選至少 3 個單字，配對遊戲會自動出題。</div>
               <div class="match-grid" id="matchGrid"></div>
@@ -1565,8 +1575,8 @@
         status: "need-more",
         lock: false
       },
-      quiz: { current: null, score: 0, total: 0 },
-      spell: { current: null, score: 0, total: 0 }
+      quiz: { current: null, previousCorrectId: null, score: 0, total: 0 },
+      spell: { current: null, previousWordId: null, score: 0, total: 0 }
     };
 
     const wordGrid = document.getElementById("wordGrid");
@@ -1605,6 +1615,7 @@
     const spellScore = document.getElementById("spellScore");
 
     let matchTimerId = null;
+    let matchAudioContext = null;
 
     function loadSelectedIds() {
       try {
@@ -1755,6 +1766,108 @@
       }
     }
 
+    function playMatchSuccessSound() {
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) {
+          return;
+        }
+
+        if (!matchAudioContext) {
+          matchAudioContext = new AudioContextClass();
+        }
+
+        if (matchAudioContext.state === "suspended") {
+          matchAudioContext.resume();
+        }
+
+        const now = matchAudioContext.currentTime;
+        const notes = [
+          { frequency: 659.25, start: now, duration: 0.1 },
+          { frequency: 880, start: now + 0.11, duration: 0.16 }
+        ];
+
+        notes.forEach((note) => {
+          const oscillator = matchAudioContext.createOscillator();
+          const gainNode = matchAudioContext.createGain();
+
+          oscillator.type = "sine";
+          oscillator.frequency.setValueAtTime(note.frequency, note.start);
+
+          gainNode.gain.setValueAtTime(0.0001, note.start);
+          gainNode.gain.exponentialRampToValueAtTime(0.12, note.start + 0.02);
+          gainNode.gain.exponentialRampToValueAtTime(0.0001, note.start + note.duration);
+
+          oscillator.connect(gainNode);
+          gainNode.connect(matchAudioContext.destination);
+
+          oscillator.start(note.start);
+          oscillator.stop(note.start + note.duration);
+        });
+      } catch (error) {
+        // Ignore audio failures so the game still works everywhere.
+      }
+    }
+
+    function playMatchErrorSound() {
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) {
+          return;
+        }
+
+        if (!matchAudioContext) {
+          matchAudioContext = new AudioContextClass();
+        }
+
+        if (matchAudioContext.state === "suspended") {
+          matchAudioContext.resume();
+        }
+
+        const now = matchAudioContext.currentTime;
+        const notes = [
+          { frequency: 392, start: now, duration: 0.12 },
+          { frequency: 311.13, start: now + 0.1, duration: 0.18 }
+        ];
+
+        notes.forEach((note) => {
+          const oscillator = matchAudioContext.createOscillator();
+          const gainNode = matchAudioContext.createGain();
+
+          oscillator.type = "triangle";
+          oscillator.frequency.setValueAtTime(note.frequency, note.start);
+
+          gainNode.gain.setValueAtTime(0.0001, note.start);
+          gainNode.gain.exponentialRampToValueAtTime(0.09, note.start + 0.02);
+          gainNode.gain.exponentialRampToValueAtTime(0.0001, note.start + note.duration);
+
+          oscillator.connect(gainNode);
+          gainNode.connect(matchAudioContext.destination);
+
+          oscillator.start(note.start);
+          oscillator.stop(note.start + note.duration);
+        });
+      } catch (error) {
+        // Ignore audio failures so the game still works everywhere.
+      }
+    }
+
+    function playQuizSuccessSound() {
+      playMatchSuccessSound();
+    }
+
+    function playQuizErrorSound() {
+      playMatchErrorSound();
+    }
+
+    function playSpellSuccessSound() {
+      playMatchSuccessSound();
+    }
+
+    function playSpellErrorSound() {
+      playMatchErrorSound();
+    }
+
     function createMatchDeck(sourceWords) {
       return shuffled(sourceWords.flatMap((item) => ([
         { id: `word-${item.id}`, pairId: item.id, type: "word", text: item.word, matched: false, selected: false },
@@ -1897,11 +2010,13 @@
         secondCard.selected = false;
         state.match.wrongPair = [];
         state.match.matchedPairs += 1;
+        playMatchSuccessSound();
       } else {
         state.match.correctPair = [];
         state.match.wrongPair = [firstCard.id, secondCard.id];
         firstCard.selected = false;
         secondCard.selected = false;
+        playMatchErrorSound();
       }
 
       state.match.firstPick = null;
@@ -2016,6 +2131,7 @@
       const selectedWords = getSelectedWords();
       if (selectedWords.length < 4) {
         state.quiz.current = null;
+        state.quiz.previousCorrectId = null;
         quizQuestion.textContent = "先勾選至少 4 個單字再開始。";
         quizOptions.innerHTML = "";
         quizFeedback.textContent = "";
@@ -2023,12 +2139,17 @@
         return;
       }
 
-      const correct = selectedWords[Math.floor(Math.random() * selectedWords.length)];
+      const availableCorrectWords = selectedWords.length > 1 && state.quiz.previousCorrectId !== null
+        ? selectedWords.filter((item) => item.id !== state.quiz.previousCorrectId)
+        : selectedWords;
+      const correctPool = availableCorrectWords.length ? availableCorrectWords : selectedWords;
+      const correct = correctPool[Math.floor(Math.random() * correctPool.length)];
       const wrongChoices = shuffled(
         selectedWords.filter((item) => item.id !== correct.id)
       ).slice(0, 3);
       const options = shuffled([correct, ...wrongChoices]);
       state.quiz.current = { correct, options };
+      state.quiz.previousCorrectId = correct.id;
 
       quizQuestion.textContent = `「${correct.word}」的中文意思是哪一個？`;
       quizOptions.innerHTML = options.map((option) => `
@@ -2050,9 +2171,11 @@
       state.quiz.total += 1;
       if (id === state.quiz.current.correct.id) {
         state.quiz.score += 1;
+        playQuizSuccessSound();
         quizFeedback.textContent = "答對了，真棒。";
         quizFeedback.className = "feedback good";
       } else {
+        playQuizErrorSound();
         quizFeedback.textContent = `再試一次，正確答案是「${state.quiz.current.correct.meaning}」。`;
         quizFeedback.className = "feedback bad";
       }
@@ -2065,6 +2188,7 @@
       const spellableWords = selectedWords.filter((item) => /^[a-z]+$/i.test(item.word));
       if (spellableWords.length === 0) {
         state.spell.current = null;
+        state.spell.previousWordId = null;
         spellQuestion.textContent = "請先勾選至少 1 個單一英文單字再開始。";
         scrambledLetters.textContent = "-";
         spellFeedback.textContent = "";
@@ -2073,8 +2197,13 @@
         return;
       }
 
-      const current = spellableWords[Math.floor(Math.random() * spellableWords.length)];
+      const availableSpellWords = spellableWords.length > 1 && state.spell.previousWordId !== null
+        ? spellableWords.filter((item) => item.id !== state.spell.previousWordId)
+        : spellableWords;
+      const spellPool = availableSpellWords.length ? availableSpellWords : spellableWords;
+      const current = spellPool[Math.floor(Math.random() * spellPool.length)];
       state.spell.current = current;
+      state.spell.previousWordId = current.id;
       spellQuestion.textContent = `請拼出「${current.meaning}」的英文單字。`;
       scrambledLetters.textContent = scrambleWord(current.word);
       spellFeedback.textContent = "";
@@ -2101,9 +2230,11 @@
       state.spell.total += 1;
       if (answer === state.spell.current.word) {
         state.spell.score += 1;
+        playSpellSuccessSound();
         spellFeedback.textContent = "答對了，拼字成功。";
         spellFeedback.className = "feedback good";
       } else {
+        playSpellErrorSound();
         spellFeedback.textContent = `差一點，正確答案是 ${state.spell.current.word}。`;
         spellFeedback.className = "feedback bad";
       }
@@ -2255,6 +2386,7 @@
     document.getElementById("random10Btn").addEventListener("click", () => pickRandom(10));
     document.getElementById("random15Btn").addEventListener("click", () => pickRandom(15));
     document.getElementById("clearBtn").addEventListener("click", () => setSelection([]));
+    document.getElementById("matchRestartBtn").addEventListener("click", setupMatchGame);
     document.getElementById("matchResultReplayBtn").addEventListener("click", setupMatchGame);
     document.getElementById("newQuizBtn").addEventListener("click", generateQuiz);
     document.getElementById("newSpellBtn").addEventListener("click", generateSpellGame);
