@@ -631,14 +631,17 @@
     }
 
     .match-message {
-      min-height: 52px;
+      height: 72px;
       margin-bottom: 14px;
       padding: 10px 12px;
       border: 1px solid transparent;
       border-radius: 16px;
+      display: flex;
+      align-items: center;
       color: rgba(255, 255, 255, 0.84);
-      line-height: 1.6;
+      line-height: 1.45;
       font-weight: 700;
+      overflow: hidden;
     }
 
     .match-message.bad {
@@ -744,6 +747,15 @@
       border-color: rgba(244, 162, 97, 0.52);
       background: linear-gradient(135deg, rgba(255, 229, 209, 0.9), rgba(255, 243, 176, 0.58));
       color: #8b4b14;
+      transform: translateY(-2px) scale(1.01);
+      box-shadow: 0 14px 28px rgba(244, 162, 97, 0.22);
+    }
+
+    .match-card.cancelled {
+      background: linear-gradient(135deg, rgba(223, 245, 255, 0.95), rgba(221, 249, 228, 0.86));
+      border-color: rgba(34, 124, 157, 0.44);
+      color: var(--ocean);
+      box-shadow: 0 10px 22px rgba(34, 124, 157, 0.16);
     }
 
     .match-card.matched {
@@ -1546,6 +1558,7 @@
         cards: [],
         firstPick: null,
         secondPick: null,
+        cancelledCardId: null,
         correctPair: [],
         wrongPair: [],
         moves: 0,
@@ -1763,6 +1776,7 @@
           cards: [],
           firstPick: null,
           secondPick: null,
+          cancelledCardId: null,
           correctPair: [],
           wrongPair: [],
           moves: 0,
@@ -1782,6 +1796,7 @@
         cards: createMatchDeck(sourceWords),
         firstPick: null,
         secondPick: null,
+        cancelledCardId: null,
         correctPair: [],
         wrongPair: [],
         moves: 0,
@@ -1842,6 +1857,8 @@
           ? "這兩張不對喔，再試試看別的組合。"
           : isCorrectFeedback
             ? "配對成功，做得很棒！"
+            : state.match.cancelledCardId
+              ? "已取消選取，請重新選一張卡。"
             : `已配對 ${state.match.matchedPairs} / ${state.match.totalPairs} 組，繼續加油。`;
       } else if (state.match.status === "done") {
         matchMessage.textContent = `太棒了，全部配對完成，共用了 ${state.match.moves} 步。`;
@@ -1859,7 +1876,7 @@
 
       matchGrid.innerHTML = state.match.cards.map((card) => `
         <button
-          class="match-card ${card.selected ? "selected" : ""} ${card.matched ? "matched" : ""} ${state.match.correctPair.includes(card.id) ? "correct" : ""} ${state.match.wrongPair.includes(card.id) ? "wrong" : ""}"
+          class="match-card ${card.selected ? "selected" : ""} ${card.matched ? "matched" : ""} ${state.match.cancelledCardId === card.id ? "cancelled" : ""} ${state.match.correctPair.includes(card.id) ? "correct" : ""} ${state.match.wrongPair.includes(card.id) ? "wrong" : ""}"
           data-match-id="${card.id}"
           ${card.matched || state.match.status === "timeout" ? "disabled" : ""}
         >
@@ -1931,11 +1948,17 @@
         if (chosenCard && state.match.firstPick === chosenCard.id && !state.match.secondPick) {
           chosenCard.selected = false;
           state.match.firstPick = null;
+          state.match.cancelledCardId = chosenCard.id;
           renderMatchGame();
+          setTimeout(() => {
+            state.match.cancelledCardId = null;
+            renderMatchGame();
+          }, 320);
         }
         return;
       }
 
+      state.match.cancelledCardId = null;
       chosenCard.selected = true;
 
       if (!state.match.firstPick) {
