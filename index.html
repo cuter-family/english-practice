@@ -751,13 +751,6 @@
       box-shadow: 0 14px 28px rgba(244, 162, 97, 0.22);
     }
 
-    .match-card.cancelled {
-      background: linear-gradient(135deg, rgba(223, 245, 255, 0.95), rgba(221, 249, 228, 0.86));
-      border-color: rgba(34, 124, 157, 0.44);
-      color: var(--ocean);
-      box-shadow: 0 10px 22px rgba(34, 124, 157, 0.16);
-    }
-
     .match-card.matched {
       opacity: 0.38;
       background: rgba(67, 170, 139, 0.14);
@@ -1876,7 +1869,7 @@
 
       matchGrid.innerHTML = state.match.cards.map((card) => `
         <button
-          class="match-card ${card.selected ? "selected" : ""} ${card.matched ? "matched" : ""} ${state.match.cancelledCardId === card.id ? "cancelled" : ""} ${state.match.correctPair.includes(card.id) ? "correct" : ""} ${state.match.wrongPair.includes(card.id) ? "wrong" : ""}"
+          class="match-card ${card.selected ? "selected" : ""} ${card.matched ? "matched" : ""} ${state.match.correctPair.includes(card.id) ? "correct" : ""} ${state.match.wrongPair.includes(card.id) ? "wrong" : ""}"
           data-match-id="${card.id}"
           ${card.matched || state.match.status === "timeout" ? "disabled" : ""}
         >
@@ -1948,12 +1941,8 @@
         if (chosenCard && state.match.firstPick === chosenCard.id && !state.match.secondPick) {
           chosenCard.selected = false;
           state.match.firstPick = null;
-          state.match.cancelledCardId = chosenCard.id;
+          state.match.cancelledCardId = null;
           renderMatchGame();
-          setTimeout(() => {
-            state.match.cancelledCardId = null;
-            renderMatchGame();
-          }, 320);
         }
         return;
       }
